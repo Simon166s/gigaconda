@@ -32,19 +32,21 @@ def optim_planning(demandes, curr = []):
     demandes = list(demandes)
     
     plannings=[]
-    
+    a = 0
     for creneau in demandes :
         if valide(creneau,curr)  :
+            a +=1
             curr.append(creneau)
             plannings.append(optim_planning(demandes,curr))
             curr.pop()
-    
-    print(plannings)
-    print(curr)
+            
+    if a == 0 :
+        return curr.copy() # on a pas de nouvelle maniere
     if plannings :
-        
         return max(plannings, key=duree_planning)
+    
     else :
+        print("test")
         return None
 
 exemple_demandes = ((2,5),(7,9),(3,9),(2,6),(4,7))
