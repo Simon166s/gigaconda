@@ -83,7 +83,23 @@ def comparateur(base_de_donnees):
     return True
 
 
-base_de_donnees = generateur_base_de_donnees(Hmin, Hmax, 5, 2)
+base_de_donnees = generateur_base_de_donnees(Hmin, Hmax, 15, 2)
 #print(base_de_donnees)
 
-comparateur(base_de_donnees)
+#comparateur(base_de_donnees)
+
+""" 
+Test supplémentaires
+"""
+
+#Test si la liste est vide
+assert(optim_planning_enum([]) == [])
+assert(optim_planning_glouton([]) == [])
+
+#Test si il y a qu'un seul element
+assert(optim_planning_enum([(6,9)]) == [(6,9)])
+assert(optim_planning_glouton([(6,9)]) == [(6,9)])
+
+#Test si il y a deux elements identiques
+assert(optim_planning_enum([(6,9),(6,9)]) == [(6,9)])
+assert(optim_planning_glouton([(6,9),(6,9)]) == [(6,9)])

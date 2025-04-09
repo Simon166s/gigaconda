@@ -11,6 +11,12 @@ def optim_planning(demandes):
     en vérifiant a chaque fois qu'il n'y a pas de chevauchement
     """
     
+    assert(type(demandes) == list), "verifie que demandes est bien une liste"
+    
+    if len(demandes) == 0 :
+        return []
+    
+    
     # Tri des demandes par heure de fin décroissante parce qu'on va prendre le dernier 
     # élément de la liste a la place de la premiere car moins de complexité
     demande_trie = sorted(demandes, key=lambda x: x[1], reverse=True)

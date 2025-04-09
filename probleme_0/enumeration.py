@@ -9,8 +9,8 @@ def valide(creneau_test, curr):
     
     debut_test, fin_test = creneau_test  # On extrait le début et la fin du créneau à tester
     
-    # if debut_test < Hmin or fin_test > Hmax :
-    #     return False
+    if debut_test < Hmin or fin_test > Hmax :
+        return False
     
     # Si le créneau est déjà présent dans la liste actuelle, on le refuse
     if creneau_test in curr:
