@@ -1,40 +1,38 @@
-def valide(creneau_test, curr):
-
-    debut_test, fin_test = creneau_test
-    if creneau_test in curr:
-        return False
-    for creneau in curr:
-        debut, fin = creneau
-        if not (fin_test <= debut or debut_test >= fin):
-            return False
-
-    return True
+Hmin = 0
+Hmax = int(10e9)
 
 
-"""class valideur:
-    def __init__(self,creneau_min,creneau_max):
-        #print(creneau_max)
-        self.agenda = np.array([0 for a in range(0,creneau_max)])
-    def get_maj_possible(self,creneau):
-        hd,hf=creneau
-        if 1 not in self.agenda[hd:hf]:
-            return True
-
-    def maj(self,creneau):
-        hd,hf=creneau
-        #print(hd,hf)
-        self.agenda[hd:hf]=1"""
 
 
 def optim_planning(demandes):
+    """
+    Algorithme glouton pour sélectionner un ensemble maximal de créneaux compatibles (sans chevauchement).
+    On va insérer a chaque fois dans la liste_return la réservation avec la fin la plus tôt et ainsi de suite
+    en vérifiant a chaque fois qu'il n'y a pas de chevauchement
+    """
+    
+    # Tri des demandes par heure de fin décroissante parce qu'on va prendre le dernier 
+    # élément de la liste a la place de la premiere car moins de complexité
     demande_trie = sorted(demandes, key=lambda x: x[1], reverse=True)
-    # print(demande_trie)
+
+    
     liste_result = [demande_trie.pop()]
+
     for i in range(len(demande_trie)):
+        # On récupère la prochaine plage qui finit le plus tot
         meilleur_plage = demande_trie.pop()
-        if liste_result[-1][1] <= meilleur_plage[0]:
+        debut_test, fin_test = meilleur_plage  # On extrait le début et la fin du créneau à tester
+
+        #Verifie qu'elle est bien dans l'intervalle
+        if debut_test < Hmin or fin_test > Hmax :
+            return False
+        # Si ce créneau commence après ou au moment où le dernier choisi se termine
+        if liste_result[-1][1] <= debut_test:
+            # Pas de chevauchement donc on peut l'ajouter à la liste return
             liste_result.append(meilleur_plage)
-    return sorted(liste_result, key=lambda x: x[0])
+
+    return liste_result
+
 
 
 exemple_demandes = ((2, 5), (7, 9), (3, 9), (2, 6), (4, 7))
@@ -61,3 +59,5 @@ demandes = [
     (13, 15),
     (14, 17),
 ]
+
+#print(optim_planning(demandes))
