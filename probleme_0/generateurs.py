@@ -14,7 +14,14 @@ def generateur_non_chevauchant(n: int) -> list[tuple]:
 
 
 def generateur_chevauchements_controle(n: int) -> list[tuple]:
-    """Génère des créneaux avec un chevauchement contrôlé (idéal pour tester les algos)"""
+    """Génère des créneaux avec un chevauchement contrôlé (idéal pour tester les algos)
+
+    Args:
+        n (int): nombre de créneaux
+
+    Returns:
+        list[tuple]: liste de demandes de créneaux avec des chevauchements
+    """
     donnees = []
     for _ in range(n):
         start = random.randint(0, 1000)

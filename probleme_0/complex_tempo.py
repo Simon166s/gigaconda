@@ -13,12 +13,12 @@ class ComplexiteTempo:
         functions_dict: dict = None,
         generateur=generateur_non_chevauchant,
     ):
-        """
-        Initialise l'objet avec le nombre maximum de demandes à tester et la liste des fonctions à évaluer.
+        """Initialise l'objet avec les fonctions à évaluer et le generateur de donné choisi
 
-        :param nbr_of_demand: Nombre maximum de demandes (taille maximale pour les tests)
-        :param functions_dict: Dictionnaire avec pour clé le nom de la fonction et pour valeur la fonction elle-même.
-                               Par défaut, on compare 'optim_glouton' et 'optim_enum'.
+
+        Args:
+            functions_dict (dict, optional): les fonctions à tester avec leur label  . Defaults to None
+            generateur (_type_, optional): la fonction générative de données. Defaults to generateur_non_chevauchant.
         """
         self.generateur = generateur
         # Si aucun dictionnaire de fonctions n'est fourni, utiliser les fonctions par défaut
@@ -30,19 +30,36 @@ class ComplexiteTempo:
         else:
             self.functions_dict = functions_dict
 
-    def wrapper(self, func, n):
-        """
-        Génère une fonction sans argument qui exécute `func` sur un jeu de données
+    def wrapper(self, func: callable[list], n: int) -> callable:
+        """ Génère une fonction sans argument qui exécute `func` sur un jeu de données
         généré par generateur_base_de_donnees pour une taille donnée `n`.
+
+        Args:
+            func (_type_): la fonction a wrap
+            n (_type_): le nombre de donnes à generer par le générateur 
+
+        Returns:
+            _type_: la fonction wrap générée sans argument pour l'execution avec timeit
+        """ """
+
         """
         data = self.generateur(n)
         return lambda: func(data)
 
-    def benchmark_function(self, func, n_values, number=100):
-        """
-        Mesure le temps d'exécution de la fonction `func` pour une liste de tailles `n_values`.
+    def benchmark_function(
+        self, func: callable[list], n_values: int, number: int = 100
+    ) -> list:
+        """Mesure le temps d'exécution de la fonction `func` pour une liste de tailles `n_values`.
         Chaque test est répété `number` fois pour obtenir une moyenne fiable.
         Renvoie une liste des temps d'exécution pour chaque taille.
+
+        Args:
+            func (callable[list]): la fonction d'optimisation à tester
+            n_values (int): le nombre valeur maximum en entré dans les données
+            number (int, optional): nombre d'itération pour obtenir une moyenne fiable. Defaults to 100.
+
+        Returns:
+            list: la liste des temps d'éxécution pour chaque itération
         """
         times = []
         for n in n_values:
@@ -52,18 +69,26 @@ class ComplexiteTempo:
         return times
 
     @staticmethod
-    def fit_scale_factor(n_values, measured_times, theoretical_func):
-        """
-        Calcule le facteur de normalisation optimal (k) pour que k * theoretical_func(n)
-        s'ajuste au mieux aux mesures (via la methode des moindres carrés)
-        """
+    def fit_scale_factor(n_values: int, measured_times, theoretical_func):
+        """ """
         f_vals = np.array([theoretical_func(n) for n in n_values])
         measured = np.array(measured_times)
         k = np.dot(measured, f_vals) / np.dot(f_vals, f_vals)
         return k
 
     @staticmethod
-    def plot_benchmarks(n_values, benchmark_results, labels, generateur):
+    def plot_benchmarks(
+        n_values: int, benchmark_results: list, labels: str, generateur: callable[int]
+    ) -> None:
+        """Affichage des courbes à partir des temps d'execution calculés, utilisation des labels
+        pour afficher aussi les courbes théoriques
+
+        Args:
+            n_values (int): nombre de valeurs maximum en entré
+            benchmark_results (list): temps d'execution
+            labels (str): label des fonctions testées
+            generateur (callable[int]): générateur utilisé pour la simulation
+        """
         plt.figure(figsize=(12, 7))
         plt.style.use("seaborn-v0_8-darkgrid")
         for i, (label, times) in enumerate(zip(labels, benchmark_results)):
@@ -118,9 +143,12 @@ class ComplexiteTempo:
         plt.tight_layout()
         plt.show()
 
-    def main(self, nbr_of_demand: int):
-        """
-        Fonction principale qui lance le benchmark pour chaque fonction d'optimisation et trace les résultats.
+    def main(self, nbr_of_demand: int) -> None:
+        """Fonction principale qui lance le benchmark pour chaque fonction d'optimisation et trace les résultats.
+
+
+        Args:
+            nbr_of_demand (int): le nombre de données maximum en entré
         """
         # Définition des tailles de données à tester.
         n_values = list(range(1, nbr_of_demand + 1))
@@ -142,9 +170,7 @@ tempo_bench = ComplexiteTempo(
         "Optimisation Glouton": optim_glouton,
         "Optimisation par énumération exhaustive": optim_enum,
     },
-
-    # Vous pouvez changer de generateur afin de tester les comportements sur d'autres jeux de données 
+    # Vous pouvez changer de generateur afin de tester les comportements sur d'autres jeux de données
     generateur=generateur_chevauchements_controle,
 )
 tempo_bench.main(12)
-

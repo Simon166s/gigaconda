@@ -6,6 +6,7 @@ import random
 Hmin = 0
 Hmax = int(10e9)
 
+
 def testeur(reponse):
     # Trie les réservations par heure de début croissante
     reponse_triee = sorted(reponse, key=lambda x: x[0])
@@ -18,7 +19,9 @@ def testeur(reponse):
             # Vérifie que le début de la première réservation est après Hmin
             if debut <= Hmin:
                 return False
-            fin_next = fin  # On garde en mémoire la fin actuelle pour comparaison suivante
+            fin_next = (
+                fin  # On garde en mémoire la fin actuelle pour comparaison suivante
+            )
 
         elif i == N:
             # Vérifie que la fin de la dernière réservation est avant Hmax
@@ -38,33 +41,37 @@ def testeur(reponse):
     return True
 
 
-def generateur_base_de_donnees(Hmin,Hmax,nombre_de_reservations, nombre_de_planning):
+def generateur_base_de_donnees(Hmin, Hmax, nombre_de_reservations, nombre_de_planning):
     """
     Crée une liste de de forme [planning_1, planning_2 ...., planning_n] de taille nombre de planning
     chaque planning sera de la forme : planning = [reservation_1, reservation_2, ... reservation_n] de taille nombre_de_reservations
     les reservations seront générées aléatoire
     """
-    donnees = [generateur_chevauchements_controle(nombre_de_reservations)for __ in range(nombre_de_planning)]
+    donnees = [
+        generateur_chevauchements_controle(nombre_de_reservations)
+        for __ in range(nombre_de_planning)
+    ]
     return donnees
+
 
 def comparateur(base_de_donnees):
     """
-    Compare les deux fonctions d'optimisation : 
+    Compare les deux fonctions d'optimisation :
     - optim_planning_enum (version exhaustive)
     - optim_planning_glouton (version gloutonne)
-    
+
     Pour chaque jeu de données de la base :
     - Vérifie la validité des résultats produits par les deux fonctions
     - Vérifie que les deux fonctions trouvent un résultat de même taille (nombre de réservations retenues)
     """
     for donnees in base_de_donnees:
-        
+
         # Résultat considéré comme réelle avec l'exhaustivité
         reponse_vrai = optim_planning_enum(donnees)
-        
+
         # Résultat a tester avec la methode glouton
         reponse_a_tester = optim_planning_glouton(donnees)
-        
+
         # Vérifie la validité des réponses (pas de chevauchement, horaires valides)
         if testeur(reponse_vrai) == False:
             return False
@@ -84,22 +91,22 @@ def comparateur(base_de_donnees):
 
 
 base_de_donnees = generateur_base_de_donnees(Hmin, Hmax, 15, 2)
-#print(base_de_donnees)
+# print(base_de_donnees)
 
-#comparateur(base_de_donnees)
+# comparateur(base_de_donnees)
 
 """ 
 Test supplémentaires
 """
 
-#Test si la liste est vide
-assert(optim_planning_enum([]) == [])
-assert(optim_planning_glouton([]) == [])
+# Test si la liste est vide
+assert optim_planning_enum([]) == []
+assert optim_planning_glouton([]) == []
 
-#Test si il y a qu'un seul element
-assert(optim_planning_enum([(6,9)]) == [(6,9)])
-assert(optim_planning_glouton([(6,9)]) == [(6,9)])
+# Test si il y a qu'un seul element
+assert optim_planning_enum([(6, 9)]) == [(6, 9)]
+assert optim_planning_glouton([(6, 9)]) == [(6, 9)]
 
-#Test si il y a deux elements identiques
-assert(optim_planning_enum([(6,9),(6,9)]) == [(6,9)])
-assert(optim_planning_glouton([(6,9),(6,9)]) == [(6,9)])
+# Test si il y a deux elements identiques
+assert optim_planning_enum([(6, 9), (6, 9)]) == [(6, 9)]
+assert optim_planning_glouton([(6, 9), (6, 9)]) == [(6, 9)]

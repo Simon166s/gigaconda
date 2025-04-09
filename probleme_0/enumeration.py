@@ -1,17 +1,20 @@
 Hmin = 0
 Hmax = 10e9
 
+
 def valide(creneau_test, curr):
     """
     Vérifie si une reservation peut être ajouté à une liste de reservations existante
     sans qu'il y ait de chevauchement.
     """
-    
-    debut_test, fin_test = creneau_test  # On extrait le début et la fin du créneau à tester
-    
-    if debut_test < Hmin or fin_test > Hmax :
+
+    debut_test, fin_test = (
+        creneau_test  # On extrait le début et la fin du créneau à tester
+    )
+
+    if debut_test < Hmin or fin_test > Hmax:
         return False
-    
+
     # Si le créneau est déjà présent dans la liste actuelle, on le refuse
     if creneau_test in curr:
         return False
@@ -37,10 +40,10 @@ def optim_planning(demandes: list, curr: list = []) -> tuple:
     """
 
     plannings = []  # Stocke toutes les combinaisons valides explorées
-    a = 0           # Compteur de branches valides explorées
+    a = 0  # Compteur de branches valides explorées
 
     for creneau in demandes:
-        
+
         # Vérifie si ce créneau peut être ajouté à la liste actuelle
         if valide(creneau, curr):
             a += 1
@@ -57,6 +60,5 @@ def optim_planning(demandes: list, curr: list = []) -> tuple:
     return max(plannings, key=len)
 
 
-
 exemple_demandes = [(2, 5), (7, 9), (3, 9), (2, 6), (4, 7)]
-#print(optim_planning(exemple_demandes))
+# print(optim_planning(exemple_demandes))
