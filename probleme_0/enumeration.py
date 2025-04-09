@@ -38,4 +38,3 @@ def optim_planning(demandes: list, curr: list = []) -> tuple:
 
 exemple_demandes = [(2,5),(7,9),(3,9),(2,6),(4,7)]
 
-print(optim_planning(exemple_demandes))

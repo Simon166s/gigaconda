@@ -45,6 +45,5 @@ demandes = [
     (3, 4), (9, 11), (11, 13), (13, 15), (14, 17)
 ]
 
-print(optim_planning(demandes))
 
     

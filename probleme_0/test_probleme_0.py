@@ -1,32 +1,37 @@
-import timeit
-import matplotlib.pyplot as pl
+# %%
+%matplotlib inline
+import matplotlib.pyplot as plt
 import numpy as np
-from random import *
+import timeit
 
+from glouton import optim_planning as optim_glouton, demandes
+from enumeration import optim_planning as optim_enum, valide
 
-########################################################################################################
-# Comparaison des complexités
-########################################################################################################
-pl.subplot(2,1,2)
-taille = 50
-# Différentes tailles pour tracé de courbes
-n = range(taille//40, taille, taille//40)
+def make_demandes(n):
+    return demandes[:n]
 
-# liste des fonctions à comparer
-liste_fct = [] 
+# Liste des fonctions à comparer
+fcts = [
+    ("optim_glouton", lambda n: lambda: optim_glouton(make_demandes(n))),
+    ("optim_enum",    lambda n: lambda: optim_enum(make_demandes(n)))
+]
 
-for fct in liste_fct:
-    print(fct.__name__)
-    d = []
-    Y = []
-    for i in n:
-        d.append( timeit.timeit("fct()", globals=globals(), number=100))
-    Y.append(np.array(d))
+n_values = list(range(1, len(demandes) + 1))
 
-    p, = pl.plot(n, Y[0], label = fct.__name__)
-    pl.fill_between(n, Y[1], Y[2], color = pl.getp(p, 'color'), alpha=0.5)
+plt.figure(figsize=(8, 6))
 
-pl.legend(loc=2)
-pl.xlabel('taille')
-pl.ylabel('durée [s]')
-pl.show()
+# Pour chaque fonction, on trace la courbe de complexité
+for name, get_wrapper in fcts:
+    times = []
+    for n in n_values:
+        t = timeit.timeit(get_wrapper(n), number=100)
+        times.append(t)
+    plt.plot(n_values, times, marker='o', label=name)
+
+plt.xlabel("Taille de la liste de demandes")
+plt.ylabel("Temps d'exécution (s)")
+plt.title("Comparaison des complexités temporelles")
+plt.legend()
+plt.grid(True)
+plt.show()
+# %%
