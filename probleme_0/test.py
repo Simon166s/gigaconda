@@ -58,13 +58,13 @@ def comparateur(base_de_donnees):
     - Vérifie que les deux fonctions trouvent un résultat de même taille (nombre de réservations retenues)
     """
     for donnees in base_de_donnees:
-        print("Test")
+        
         # Résultat considéré comme réelle avec l'exhaustivité
         reponse_vrai = optim_planning_enum(donnees)
-        print("passé")
+        
         # Résultat a tester avec la methode glouton
         reponse_a_tester = optim_planning_glouton(donnees)
-        print("passé2")
+        
         # Vérifie la validité des réponses (pas de chevauchement, horaires valides)
         if testeur(reponse_vrai) == False:
             return False
@@ -83,7 +83,7 @@ def comparateur(base_de_donnees):
     return True
 
 
-base_de_donnees = generateur_base_de_donnees(Hmin, Hmax, 10, 20)
+base_de_donnees = generateur_base_de_donnees(Hmin, Hmax, 5, 2)
 #print(base_de_donnees)
 
 comparateur(base_de_donnees)

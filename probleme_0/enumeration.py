@@ -6,7 +6,7 @@ def valide(creneau_test, curr):
     Vérifie si une reservation peut être ajouté à une liste de reservations existante
     sans qu'il y ait de chevauchement.
     """
-    print("valide")
+    
     debut_test, fin_test = creneau_test  # On extrait le début et la fin du créneau à tester
     
     if debut_test < Hmin or fin_test > Hmax :
