@@ -30,7 +30,7 @@ def optim_planning(demandes: list, curr: list = []) -> tuple:
     if a == 0 :
         return curr.copy() # on a pas de nouvelle maniere
     if plannings :
-        return max(plannings, key=len)
+        return max(plannings, key = len)
     
     else :
         print("test")

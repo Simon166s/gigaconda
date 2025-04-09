@@ -1,4 +1,4 @@
-import numpy as np
+
 def valide(creneau_test, curr):
     
     debut_test, fin_test = creneau_test
@@ -8,7 +8,7 @@ def valide(creneau_test, curr):
         debut, fin = creneau
         if not (fin_test <= debut or debut_test >= fin):
             return False
-        
+           
     return True
 
 """class valideur:
