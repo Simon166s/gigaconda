@@ -38,6 +38,20 @@ def affiche_tournee(coords):
 
     plt.show()
 
-def affiche_points(coords):
-    x,
+def affiche_points(donnees, titre="Graphique de points", couleur="blue", taille_point=50):
+    """
+    Trace un graphique avec uniquement des points à partir d'une liste de (x, y).
 
+    """
+    # Séparer les x et y
+    x, y = zip(*donnees)
+
+    # Créer le graphique
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x, y, color=couleur, s=taille_point)
+    plt.title(titre)
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.grid(True)
+    plt.show()
+    return
