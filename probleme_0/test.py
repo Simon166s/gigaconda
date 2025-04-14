@@ -1,5 +1,5 @@
 from enumeration import optim_planning as optim_planning_enum
-from glouton import optim_planning as optim_planning_glouton
+from probleme_1.glouton import optim_planning as optim_planning_glouton
 from generateurs import generateur_chevauchements_controle
 import random
 

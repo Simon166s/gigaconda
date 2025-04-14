@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import timeit
 import numpy as np
 
-from glouton import optim_planning as optim_glouton
+from probleme_1.glouton import optim_planning as optim_glouton
 from enumeration import optim_planning as optim_enum, valide
 from generateurs import generateur_non_chevauchant, generateur_chevauchements_controle
 
