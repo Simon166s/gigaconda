@@ -7,9 +7,9 @@ def calcule_tournee(coords):
 
 coords = util.lire_fichier_coords('exemple1.txt')
 tournee = calcule_tournee(coords)
-util.affiche_tournee(tournee)
+#util.affiche_tournee(tournee)
 
-util.affiche_points(coords)
+#util.affiche_points(coords)
 
 distance_min = float("+inf")
 
@@ -24,11 +24,13 @@ def distance_totale(coords):
         dist += distance(coords[i], coords[i-1])
     return dist
 
-def calcul_tournee_ex(coords, curr=[]):
-    
-    chemins = []
+chemins = []
+
+def calcul_tournee_ex(coords, curr=[],i=0):
+
 
     if len(coords) == 0:
+        global chemins
         chemins.append(curr[:])
         return min(chemins, key = util.distance_totale)
 
@@ -36,11 +38,11 @@ def calcul_tournee_ex(coords, curr=[]):
         point = coords.pop(i)
         curr.append(point)
 
-        calcul_tournee_ex(coords, curr)  # appel récursif
+        result = calcul_tournee_ex(coords, curr,i+1)  # appel récursif
 
         curr.pop()
         coords.insert(i, point)  # on remet le point à sa place d'origine 
-
-    return min(chemins,key = util.distance_totale)
+    return result
 
 tournee = calcul_tournee_ex(list(coords))
+print(tournee)
