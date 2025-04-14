@@ -1,21 +1,15 @@
 # Code de base pour le problème `Tournée du jardinier`
-
+import matplotlib.pyplot as plt
 import util
 
 def calcule_tournee(coords):
     return coords # A MODIFIER
 
-coords = util.lire_fichier_coords('exemple1.txt')
+coords = util.lire_fichier_coords('test_alban_etoile.txt')
 tournee = calcule_tournee(coords)
-<<<<<<< HEAD
 #util.affiche_tournee(tournee)
 
 #util.affiche_points(coords)
-=======
-util.affiche_tournee(tournee)
-
-util.affiche_points(coords)
->>>>>>> e10cf29c8a00f4cc627235f9e9ce20135d1c12f5
 
 distance_min = float("+inf")
 
@@ -30,44 +24,41 @@ def distance_totale(coords):
         dist += distance(coords[i], coords[i-1])
     return dist
 
-<<<<<<< HEAD
-chemins = []
+meilleur_chemins = []
+taille_min_chem =  float("+inf")
 
-def calcul_tournee_ex(coords, curr=[],i=0):
-
-
-    if len(coords) == 0:
-        global chemins
-=======
 def calcul_tournee_ex(coords, curr=[]):
-    
-    chemins = []
-
+    global taille_min_chem
+    d_tot = util.distance_totale(curr)
+    if taille_min_chem <= d_tot:
+        return 
     if len(coords) == 0:
->>>>>>> e10cf29c8a00f4cc627235f9e9ce20135d1c12f5
-        chemins.append(curr[:])
-        return min(chemins, key = util.distance_totale)
-
+        global meilleur_chemins
+        taille_min_chem = d_tot
+        meilleur_chemins = curr[:]
+        return 
+    
     for i in range(len(coords)):
         point = coords.pop(i)
         curr.append(point)
 
-<<<<<<< HEAD
-        result = calcul_tournee_ex(coords, curr,i+1)  # appel récursif
-
-        curr.pop()
-        coords.insert(i, point)  # on remet le point à sa place d'origine 
-    return result
-
-tournee = calcul_tournee_ex(list(coords))
-print(tournee)
-=======
         calcul_tournee_ex(coords, curr)  # appel récursif
 
         curr.pop()
-        coords.insert(i, point)  # on remet le point à sa place d'origine 
+        coords.insert(i, point)  # on remet le point à sa place d'origine
 
-    return min(chemins,key = util.distance_totale)
+def appel_cacul_tournee(coords):
+    global meilleur_chemins
+    global taille_min_chem
+    meilleur_chemins = []
+    taille_min_chem =  float("+inf")
+    calcul_tournee_ex(coords)
+    return meilleur_chemins
 
-tournee = calcul_tournee_ex(list(coords))
->>>>>>> e10cf29c8a00f4cc627235f9e9ce20135d1c12f5
+
+
+tournee = appel_cacul_tournee(list(coords))
+#print(tournee)
+
+util.affiche_points(coords)
+util.affiche_tournee(tournee)
