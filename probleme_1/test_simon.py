@@ -2,8 +2,9 @@ import main
 import affichage
 import util
 import itertools
-coords = util.lire_fichier_coords('exemple1.txt')
-coords2 = util.lire_fichier_coords('exemple2.txt')
+
+coords = util.lire_fichier_coords("exemple1.txt")
+coords2 = util.lire_fichier_coords("exemple2.txt")
 
 # util.affiche_points(coords)
 # tournee = main.calcul_tournee_ex(list(coords))
