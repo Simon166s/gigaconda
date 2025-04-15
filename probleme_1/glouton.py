@@ -1,135 +1,161 @@
 from util import *
 from main import appel_cacul_tournee
 import random
+import numpy as np
 
+# ---------------------------
+# 1. Algorithme glouton pour générer la solution initiale
+# ---------------------------
+def glouton(coordonnees: np.array) -> list:
+    point_courant = (0, 0)
+    solution_courante = [point_courant]
+    non_visites = list(range(len(coordonnees)))
 
+    while non_visites:
+        indice_min = min(non_visites, key=lambda i: distance(point_courant, coordonnees[i]))
+        point_courant = tuple(coordonnees[indice_min])
+        solution_courante.append(point_courant)
+        non_visites.remove(indice_min)
 
-def glouton(coords: np.array):
-    current_pt = (0, 0)
-    current_solution = [current_pt]
-    remaining = list(range(len(coords)))
+    solution_courante.append((0, 0))
+    return solution_courante
 
-    while remaining:
-        idx_min = min(remaining, key=lambda i: distance(current_pt, coords[i]))
-        current_pt = tuple(coords[idx_min])
-        current_solution.append(current_pt)
-        remaining.remove(idx_min)
+# ---------------------------
+# 2. Heuristique locale avec fenêtre dynamique (k variant de k_min à k_max)
+# ---------------------------
+def heuristique_locale_fenetre_dynamique(solution_glouton: list, k_min: int = 3, k_max: int = 6) -> list:
+    solution_optimisee = solution_glouton
+    for k in range(k_min, k_max + 1):
+        amelioration = False
+        # Balayage de la solution par une fenêtre de taille k
+        for i in range(len(solution_optimisee) - k + 1):
+            sous_partie = solution_optimisee[i : i + k]
+            # Appel à la fonction pour optimiser cette sous-partie
+            changement = appel_cacul_tournee(sous_partie)
 
-    current_solution.append((0, 0))
-    return current_solution
+            # Suppression du point de retour (0, 0) s'il est présent
+            if changement:
+                if changement[-1] == (0, 0):
+                    changement.pop()
+                if changement and changement[0] == (0, 0):
+                    changement.pop(0)
+            
+            solution_candidate = solution_optimisee[:i] + changement + solution_optimisee[i + k:]
+            if distance_totale(solution_candidate) < distance_totale(solution_optimisee):
+                solution_optimisee = solution_candidate
+                amelioration = True
+        # Si une amélioration a été trouvée pour ce k, on recommence à partir de k_min
+        if amelioration:
+            break
+    return solution_optimisee
 
-
-def local_heuristic_k_pt(solution_glouton: list, k: int):
-    current_better = solution_glouton
-    for i in range(
-        len(current_better) - k + 1
-    ):  # Déplacement de la fenêtre sur la tournée
-        sub_part = current_better[
-            i : i + k
-        ]  # Extraction du segment de la fenêtre
-
-        # Appel à la fonction pour optimiser cette sous-partie
-        change = appel_cacul_tournee(sub_part)
-
-        change.pop()  # Enlever le retour à (0, 0)
-        change.pop(0)  # Enlever 
-
-        solutionbis = current_better[:i] + change + current_better[i + k :]
-        if distance_totale(solutionbis) < distance_totale(current_better):
-            current_better = solutionbis
-
-    return current_better
-
-
-
-previous_points = (-1, -1)
-def echanger_arcs(solution):
-    global previous_points
-    i, j = random.sample(range(1, len(solution) - 1), 2)  # éviter le point de départ (0, 0)
-    if (i,j) != previous_points:
-        solution_copy = solution[:]
-        solution_copy[i], solution_copy[j] = solution_copy[j], solution_copy[i]
-        previous_points = (i,j)
-        return solution_copy
+# ---------------------------
+# 3. Heuristique locale par échange de deux points 
+# ---------------------------
+points_precedents = (-1, -1)
+def echanger_points(solution: list) -> list:
+    global points_precedents
+    indice1, indice2 = random.sample(range(1, len(solution) - 1), 2)  # éviter le point de départ/fin (0, 0)
+    if (indice1, indice2) != points_precedents:
+        copie_solution = solution[:]
+        copie_solution[indice1], copie_solution[indice2] = copie_solution[indice2], copie_solution[indice1]
+        points_precedents = (indice1, indice2)
+        return copie_solution
     return solution
 
-
-def local_heuristic_arc(solution_glouton: list, max_stagnation: int = 10000):
-    sortir = False 
-    nbr_meilleur = 0
+def heuristique_locale_echange(solution_glouton: list, max_stagnation: int = 1000):
+    arreter = False 
+    nb_ameliorations = 0
     stagnation = 0
-    current_better = solution_glouton
-    while not sortir:
-
-        potential_better_solution = echanger_arcs(current_better)
-        if distance_totale(current_better) > distance_totale(potential_better_solution):
-            current_better = potential_better_solution
-            nbr_meilleur += 1
+    solution_optimisee = solution_glouton
+    while not arreter:
+        solution_potentielle = echanger_points(solution_optimisee)
+        if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
+            solution_optimisee = solution_potentielle
+            nb_ameliorations += 1
         else:
             stagnation += 1
 
-        sortir = True if nbr_meilleur >= 100000 or stagnation >= max_stagnation else False 
+        arreter = True if nb_ameliorations >= max_stagnation or stagnation >= max_stagnation else False 
 
-    return current_better
+    return solution_optimisee
 
-
-
-
-previous = None  # à initialiser avant d'appeler la fonction
-
-def echanger_arcs_k_consec(solution: list, k: int):
-    global previous
-    i = random.randint(1, len(solution) - 2)
-    if i != previous:
-        previous = i
-        start = max(i - k // 2, 1)
-        end = min(i + k // 2 + 1, len(solution) - 1)
-        solution_copy = solution[:]
-        slice_indices = range(start, end)
-        slice_values = [solution_copy[j] for j in slice_indices]
-        random.shuffle(slice_values)
-
-        for idx, val in zip(slice_indices, slice_values):
-            solution_copy[idx] = val
-
-        return solution_copy
+# ---------------------------
+# 4. Heuristique locale par échange d'un segment de k points consécutifs
+# ---------------------------
+precedent = None  
+def echanger_segment_consecutif(solution: list, k: int) -> list:
+    global precedent
+    indice = random.randint(1, len(solution) - 2)
+    if indice != precedent:
+        precedent = indice
+        debut = max(indice - k // 2, 1)
+        fin = min(indice + k // 2 + 1, len(solution) - 1)
+        copie_solution = solution[:]
+        indices_segment = list(range(debut, fin))
+        valeurs_segment = [copie_solution[j] for j in indices_segment]
+        random.shuffle(valeurs_segment)
+        for idx, val in zip(indices_segment, valeurs_segment):
+            copie_solution[idx] = val
+        return copie_solution
     return solution
 
-
-def local_heuristic_arc_consec(solution: list, k: int, max_stagnation: int = 10000):
-    sortir = False 
-    nbr_meilleur = 0
+def heuristique_locale_echange_segment(solution_glouton: list, k: int = 4, max_stagnation: int = 1000) -> list:
+    arreter = False 
+    nb_ameliorations = 0
     stagnation = 0
-    current_better = solution
-    while not sortir:
-
-        potential_better_solution = echanger_arcs_k_consec(current_better, k)
-        if distance_totale(current_better) > distance_totale(potential_better_solution):
-            current_better = potential_better_solution
-            nbr_meilleur += 1
+    solution_optimisee = solution_glouton
+    while not arreter:
+        solution_potentielle = echanger_segment_consecutif(solution_optimisee, k)
+        if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
+            solution_optimisee = solution_potentielle
+            nb_ameliorations += 1
+            stagnation = 0
         else:
             stagnation += 1
 
-        sortir = True if nbr_meilleur >= 100000 or stagnation >= max_stagnation else False 
+        arreter = True if nb_ameliorations >= max_stagnation or stagnation >= max_stagnation else False 
 
-    return current_better
+    return solution_optimisee
 
-
-
-
-coords = lire_fichier_coords("exemple2.txt")
-solution_init = glouton(coords)
-print(distance_totale(solution_init))
+# ---------------------------
+# 5. Définition des voisinages pour la stratégie hybride
+# ---------------------------
 
 
-local_heuristic_arc = local_heuristic_arc_consec(solution_init, 2)
-print(distance_totale(local_heuristic_arc))
+heuristiques_locales = [heuristique_locale_fenetre_dynamique, heuristique_locale_echange_segment, heuristique_locale_echange]
 
-heuristic_k_pt = local_heuristic_k_pt(local_heuristic_arc, 6)
-print(distance_totale(heuristic_k_pt))
+# ---------------------------
+# 6. Approche hybride combinant les approches 
+# ---------------------------
+def hybride(solution_initiale: list, heuristiques: list[callable], nb_iter_max: int = 1000, stagnation_max: int = 1000, delta_min: float = 0.001) -> list:
+    solution_courante = solution_initiale
+    nb_iterations = 0
+    stagnation = 0
+    cout_courant = distance_totale(solution_courante)
+    
+    while nb_iterations < nb_iter_max and stagnation < stagnation_max:
+        amelioration = False
+        for heuristique in heuristiques_locales :
+            solution_candidature = heuristique(solution_courante)
+            cout_candidature = distance_totale(solution_candidature)
 
+            # ? si l'amélioration n'est pas significative, on conserve la solution d'avant pour ne pas apporter du désordre 
+            if cout_candidature < cout_courant * (1 - delta_min): 
+                solution_courante = solution_candidature
+                cout_courant = cout_candidature
+                amelioration = True
+                stagnation = 0  
+                break  
+        if not amelioration:
+            stagnation += 1
+        nb_iterations += 1
+        
+    return solution_courante
 
+coordonnees = lire_fichier_coords("exemple2.txt")
+solution_initiale = glouton(coordonnees)
+print("Distance initiale :", distance_totale(solution_initiale))
 
-# local_heuristic_arc = local_heuristic_arc(heuristic_k_pt)
-# print(distance_totale(local_heuristic_arc))
-
+solution_amelioree = hybride(solution_initiale, heuristiques_locales, nb_iter_max=1000, stagnation_max=100)
+print("Distance totale améliorée :", distance_totale(solution_amelioree))
