@@ -2,16 +2,19 @@ from util import *
 from main import appel_cacul_tournee
 import random
 import numpy as np
+import math
 
 # ---------------------------
 # 1. Algorithme glouton pour générer la solution initiale
 # ---------------------------
 def glouton(coordonnees: np.array) -> list:
+    # On commence à (0,0)
     point_courant = (0, 0)
     solution_courante = [point_courant]
+    # On initialise les indices des coordonnées dans une liste pour savoir lesquels on à déjà visité
     non_visites = list(range(len(coordonnees)))
-
     while non_visites:
+        # On trouve l'indice du point qui est associé à la plus petite distance du point courrant
         indice_min = min(non_visites, key=lambda i: distance(point_courant, coordonnees[i]))
         point_courant = tuple(coordonnees[indice_min])
         solution_courante.append(point_courant)
@@ -53,30 +56,35 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: list, k_min: int = 3,
 # 3. Heuristique locale par échange de deux points 
 # ---------------------------
 points_precedents = (-1, -1)
-def echanger_points(solution: list) -> list:
-    global points_precedents
-    indice1, indice2 = random.sample(range(1, len(solution) - 1), 2)  # éviter le point de départ/fin (0, 0)
-    if (indice1, indice2) != points_precedents:
-        copie_solution = solution[:]
-        copie_solution[indice1], copie_solution[indice2] = copie_solution[indice2], copie_solution[indice1]
-        points_precedents = (indice1, indice2)
-        return copie_solution
-    return solution
+def echanger_points(solution: list, k: int = 4):
+    # On prend k indices aléatoire, les indices des (0,0) exclus
+    indices = random.sample(range(1, len(solution) - 1), k)
+    indices.sort()
+
+    # On récupère les points associés aux indices
+    sous_segment = [solution[i] for i in indices]
+
+    # On mélange ces points 
+    random.shuffle(sous_segment)
+    nouvelle = solution[:]
+
+    # On remplace par les points mélangés aux indices des points de base 
+    for i, idx in enumerate(indices):
+        nouvelle[idx] = sous_segment[i]
+    return nouvelle
+
 
 def heuristique_locale_echange(solution_glouton: list, max_stagnation: int = 1000):
-    arreter = False 
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
-    while not arreter:
+    while nb_ameliorations < max_stagnation and stagnation < max_stagnation:
         solution_potentielle = echanger_points(solution_optimisee)
         if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
             solution_optimisee = solution_potentielle
             nb_ameliorations += 1
         else:
             stagnation += 1
-
-        arreter = True if nb_ameliorations >= max_stagnation or stagnation >= max_stagnation else False 
 
     return solution_optimisee
 
@@ -85,10 +93,15 @@ def heuristique_locale_echange(solution_glouton: list, max_stagnation: int = 100
 # ---------------------------
 precedent = None  
 def echanger_segment_consecutif(solution: list, k: int) -> list:
+    # on stock l'indice précédentn afin d'éviter les redondances 
+    # ? est ce que c'est vraiment un gain au final en complexité 
     global precedent
-    indice = random.randint(1, len(solution) - 2)
+    indice = random.randint(1, len(solution) - 2) # on ne veut pas echanger (0,0)
+
     if indice != precedent:
         precedent = indice
+
+        # On ne veut pas shuffle (0,0) donc on adapte les indices de début et de fin 
         debut = max(indice - k // 2, 1)
         fin = min(indice + k // 2 + 1, len(solution) - 1)
         copie_solution = solution[:]
@@ -101,11 +114,12 @@ def echanger_segment_consecutif(solution: list, k: int) -> list:
     return solution
 
 def heuristique_locale_echange_segment(solution_glouton: list, k: int = 4, max_stagnation: int = 1000) -> list:
-    arreter = False 
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
-    while not arreter:
+
+    # On continue d'essayer des amélioration jusqu'à ce qu'une des conditions soit remplie 
+    while nb_ameliorations < max_stagnation and stagnation < max_stagnation:
         solution_potentielle = echanger_segment_consecutif(solution_optimisee, k)
         if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
             solution_optimisee = solution_potentielle
@@ -113,9 +127,6 @@ def heuristique_locale_echange_segment(solution_glouton: list, k: int = 4, max_s
             stagnation = 0
         else:
             stagnation += 1
-
-        arreter = True if nb_ameliorations >= max_stagnation or stagnation >= max_stagnation else False 
-
     return solution_optimisee
 
 # ---------------------------
