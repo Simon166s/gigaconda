@@ -47,6 +47,13 @@ def echanger_segment_consecutif(solution: np.array, nbr_points: int) -> list:
         return copie_solution
     return solution
 
+def deux_opt(solution):
+    n = len(solution)
+    i, j = sorted(random.sample(range(1, len(solution)), 2)) 
+    # Crée une nouvelle solution avec inversion du segment [i, j]
+    nouvelle = solution[:i] + solution[i:j+1][::-1] + solution[j+1:] # à réécrire vu que c'est chat gpt
+    return nouvelle
+
 
 #liste_test = np.array([(5,5),(3,0),(2,4),(8,9),(2,2)])
 
