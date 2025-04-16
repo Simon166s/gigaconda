@@ -28,20 +28,41 @@ def temperature(t,fonction):
     """
     return fonction(t)
 
-def prob(dE,T):
+def prob(dE : float,T : float):
+    """Calcul
+
+    Args:
+        dE (float):différence d'energie calculée
+        T (float): Température calculée
+
+    Returns:
+        _type_: _description_
+    """
     if dE<0: #si dE<0 alors distance_totale(Sprime)<distance_totale(S)
         # donc Sprime et plus interessant que S -> On le choisit avec une probas de 1
         return 1
     else:
         return np.exp(-dE/(T+0.00001))  #+0.00001 : pour eviter d'avoir une erreur si T=0
 
-#Test avec differentes fonctions de températures
+#Test avec differentes fonctions de températures (strictement positives et décroissantes)
+A = 0.5
+alpha = 0.99
 fonction1 = lambda x:A*alpha**x
 fonction2 = lambda x:1.8*(1-x/1)
 fonction1 = lambda x:1.8 - 1.8*np.cos()
 fonction3 = lambda x: 1.8/np.log(1 + x)
 
-def recruit_simule(S0,kmax=10,fonction=fonction3):
+def recuit_simule(S0 : np.array,kmax : int =30000,fonction : function =fonction3):
+    """Fait le recuit_simule à partir d'une solution locale
+
+    Args:
+        S0 (np.array): Solution locale
+        kmax (int, optional): Nombre de maximum d'itération Defaults to 30000.
+        fonction (function, optional): la fonction qu'on va utiliser pour le calcul de température Defaults to fonction3.
+
+    Returns:
+        La nouvelle solution optimale ou non calculée par le recuit simule
+    """
     S=S0 
     for k in range(1,kmax):
         Sprime = voisin(S)  
@@ -53,5 +74,4 @@ def recruit_simule(S0,kmax=10,fonction=fonction3):
 coord = lire_fichier_coords("exemple2.txt")
 #affiche_points(coord)
 #affiche_tournee(S)
-A = 0.5
-alpha = 0.99
+
