@@ -83,6 +83,3 @@ def recuit_simule(S0: np.array, kmax: int = 30000, fonction: callable = fonction
 
 if __name__ == "__main__":
     coord = lire_fichier_coords("exemple2.txt")
-    affiche_points(coord)
-    tournee = recu
-    affiche_tournee(tournee)
