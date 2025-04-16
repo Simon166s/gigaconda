@@ -81,5 +81,6 @@ def recuit_simule(S0: np.array, kmax: int = 30000, fonction: callable = fonction
             S = Sprime
     return S
 
+
 if __name__ == "__main__":
     coord = lire_fichier_coords("exemple2.txt")
