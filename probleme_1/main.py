@@ -32,7 +32,7 @@ def calcul_tournee_ex(coords, curr = np.array([[0, 0]], dtype=float)):
         calcul_tournee_ex(new_coords, new_curr)
 
 
-def appel_cacul_tournee(coords):
+def appel_calcul_tournee(coords):
     global meilleur_chemins, taille_min_chem
     meilleur_chemins = np.empty((0, 2))
     taille_min_chem = float("+inf")
@@ -44,7 +44,7 @@ def appel_cacul_tournee(coords):
     return meilleur_chemins
 
 
-# tournee = appel_cacul_tournee(coords)
+# tournee = appel_calcul_tournee(coords)
 # print(tournee)
 
 # affiche_points(coords)
