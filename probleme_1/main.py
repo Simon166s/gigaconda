@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 from util import distance_totale, lire_fichier_coords, affiche_points, affiche_tournee,distance
 import numpy as np
+import math 
+
 
 coords = lire_fichier_coords('exemple1.txt')
 
@@ -44,8 +46,12 @@ def appel_calcul_tournee(coords):
     return meilleur_chemins
 
 
+
 tournee = appel_calcul_tournee(coords)
 #print(tournee)
 
 # affiche_points(coords)
 # affiche_tournee(tournee)
+
+
+# %%

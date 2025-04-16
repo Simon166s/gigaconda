@@ -1,5 +1,5 @@
 from util import *
-from main import *
+from main import appel_calcul_tournee
 from recuit_simule import recruit_simule
 import random
 import numpy as np
@@ -22,14 +22,14 @@ def glouton(coordonnees: np.array) -> list:
         non_visites.remove(indice_min)
 
     solution_courante.append((0, 0))
-    return solution_courante
+    return np.array(solution_courante)
 
 # ---------------------------
 # 2. Heuristique locale avec fenêtre dynamique (k variant de k_min à k_max)
 # ---------------------------
-def heuristique_locale_fenetre_dynamique(solution_glouton: list, k_min: int = 3, k_max: int = 6) -> list:
+def heuristique_locale_fenetre_dynamique(solution_glouton: np.array, k_min: int = 3, k_max: int = 6) -> list:
     # On utilise une copie de la solution glouton pour éviter de modifier la solution d'origine
-    solution_actuelle = solution_glouton[:]  
+    solution_actuelle = solution_glouton.copy()  
     amelioration_trouvee = True
     
     # Tant qu'une amélioration est détectée, on poursuit l'optimisation
@@ -42,14 +42,17 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: list, k_min: int = 3,
                 # Extraction de la sous-partie de la solution
                 sous_partie = solution_actuelle[i : i + k]
                 # Optimisation de la sous-partie via la fonction appel_cacul_tournee
-                modification = appel_cacul_tournee(sous_partie)
+                modification = appel_calcul_tournee(sous_partie)
                 
                 # Suppression du point de retour (0, 0) en fin et en début de la solution optimisée
-                modification.pop()   # enlève le dernier élément
-                modification.pop(0)  # enlève le premier élément
-                
+                modification = modification [1:-1]   # enlève le dernier élément
                 # Construction de la solution candidate avec la sous-partie optimisée
-                solution_candidate = solution_actuelle[:i] + modification + solution_actuelle[i + k:]
+                solution_candidate = np.vstack([
+                    solution_actuelle[:i],
+                    modification,
+                    solution_actuelle[i + k:]
+                ])
+
                 
                 # Si la solution candidate présente une distance totale inférieure, elle est retenue
                 if distance_totale(solution_candidate) < distance_totale(solution_actuelle):
@@ -69,7 +72,7 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: list, k_min: int = 3,
 # 3. Heuristique locale par échange de deux points 
 # ---------------------------
 
-def heuristique_locale_echange(solution_glouton: list, nbr_points: int = 2, max_stagnation: int = 1000)-> list:
+def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, max_stagnation: int = 1000)-> list:
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
@@ -78,6 +81,7 @@ def heuristique_locale_echange(solution_glouton: list, nbr_points: int = 2, max_
         if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
             solution_optimisee = solution_potentielle
             nb_ameliorations += 1
+            stagnation = 0
         else:
             stagnation += 1
 
@@ -86,7 +90,7 @@ def heuristique_locale_echange(solution_glouton: list, nbr_points: int = 2, max_
 # ---------------------------
 # 4. Heuristique locale par échange d'un segment de k points consécutifs
 # ---------------------------
-def heuristique_locale_echange_segment(solution_glouton: list, nbr_points: int = 4, max_stagnation: int = 1000) -> list:
+def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: int = 4, max_stagnation: int = 1000) -> list:
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
@@ -122,18 +126,17 @@ def heuristique_locale_2_opt(solution_initiale, max_stagnation=100000):
         else:
             stagnation += 1
     return solution
-        
 # ---------------------------
 # 5. Définition des voisinages pour la stratégie hybride
 # ---------------------------
 
 # ordre fenetre , echange, echange segment 
-heuristiques_locales = [heuristique_locale_2_opt]
+heuristiques_locales = [heuristique_locale_echange, heuristique_locale_echange_segment, heuristique_locale_fenetre_dynamique]
 
 # ---------------------------
 # 6. Approche hybride combinant les approches 
 # ---------------------------
-def hybride(solution_initiale: list, heuristiques: list[callable], nb_iter_max: int = 200, stagnation_max: int = 200, delta_min: float = 0.001) -> list:
+def hybride(solution_initiale: np.array, heuristiques: list[callable], nb_iter_max: int = 100, stagnation_max: int = 100, delta_min: float = 0.001) -> list:
     solution_courante = solution_initiale
     nb_iterations = 0
     stagnation = 0
@@ -158,14 +161,13 @@ def hybride(solution_initiale: list, heuristiques: list[callable], nb_iter_max: 
         
     return solution_courante
 
+
 coordonnees = lire_fichier_coords("exemple2.txt")
 solution_initiale = glouton(coordonnees)
 print("Distance initiale :", distance_totale(solution_initiale))
-# solution_amelioree = hybride(solution_initiale, heuristiques_locales)
-# print("Distance hybride améliorée :", distance_totale(solution_amelioree))
-solution_2_opt = heuristique_locale_2_opt(solution_initiale)
-print("Distance finale avec 2_opt", distance_totale(solution_2_opt))
-# solution_recuit = recruit_simule(solution_amelioree)
-# print("Distance recuit améliorée :", distance_totale(solution_recuit))
+solution_amelioree = hybride(solution_initiale, heuristiques_locales)
+print("Distance hybride améliorée :", distance_totale(solution_amelioree))
+solution_recuit = recruit_simule(solution_amelioree)
+print("Distance recuit améliorée :", distance_totale(solution_recuit))
 
 
