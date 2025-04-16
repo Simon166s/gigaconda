@@ -1,7 +1,10 @@
+# %%
 # Code de base pour le problème `Tournée du jardinier`
 import matplotlib.pyplot as plt
 from util import distance_totale, lire_fichier_coords, affiche_points, affiche_tournee,distance
 import numpy as np
+
+from complex_tempo import ComplexiteTempo
 
 coords = lire_fichier_coords('exemple1.txt')
 
@@ -44,8 +47,17 @@ def appel_calcul_tournee(coords):
     return meilleur_chemins
 
 
+viz = ComplexiteTempo(functions_dict={"Solution exaustive": appel_calcul_tournee })
+viz.main(7)
+
+viz = ComplexiteTempo(functions_dict={"Solution exaustive": appel_calcul_tournee })
+viz.main(7)
+
 tournee = appel_calcul_tournee(coords)
 #print(tournee)
 
 # affiche_points(coords)
 # affiche_tournee(tournee)
+
+
+# %%
