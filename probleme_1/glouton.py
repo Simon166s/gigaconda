@@ -1,3 +1,4 @@
+#%%
 from util import *
 from main import *
 from recuit_simule import recruit_simule
@@ -42,7 +43,7 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: list, k_min: int = 3,
                 # Extraction de la sous-partie de la solution
                 sous_partie = solution_actuelle[i : i + k]
                 # Optimisation de la sous-partie via la fonction appel_cacul_tournee
-                modification = appel_cacul_tournee(sous_partie)
+                modification = appel_calcul_tournee(sous_partie)
                 
                 # Suppression du point de retour (0, 0) en fin et en début de la solution optimisée
                 modification.pop()   # enlève le dernier élément

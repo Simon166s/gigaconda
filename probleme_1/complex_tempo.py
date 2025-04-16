@@ -67,7 +67,7 @@ class ComplexiteTempo:
 
     @staticmethod
     def plot_benchmarks(
-        n_values: int, benchmark_results: list, labels: str, generateur: callable
+        n_values: int, benchmark_results: list, labels: str, complexity: callable, complex_labels: str, generateur: callable
     ) -> None:
         """Affichage des courbes à partir des temps d'execution calculés, utilisation des labels
         pour afficher aussi les courbes théoriques
@@ -80,7 +80,7 @@ class ComplexiteTempo:
         """
         plt.figure(figsize=(12, 7))
         plt.style.use("seaborn-v0_8-darkgrid")
-        for i, (label, times) in enumerate(zip(labels, benchmark_results)):
+        for i, (label, times, complex_func, complex_label) in enumerate(zip(labels, benchmark_results, complexity, complex_labels)):
             # Affichage réel
             plt.plot(
                 n_values,
@@ -97,31 +97,17 @@ class ComplexiteTempo:
             n_mid = n_values[mid_idx]
             t_mid = times[mid_idx] if mid_idx < len(times) else 1e-6
 
-            if "O(n·2ⁿ)" in label.lower():
-                # Tendance O(n·2ⁿ)
-                theo = [n * (2**n) for n in n_values]
-                k = t_mid / (n_mid * (2**n_mid))
-                theo_times = [k * val for val in theo]
-                plt.plot(
+            theo = [complex_func(n) for n in n_values]
+            k = t_mid / (complex_func(n_mid))
+            theo_times = [k * val for val in theo]
+            plt.plot(
                     n_values,
                     theo_times,
                     "--",
-                    label="Tendance O(n·2ⁿ)",
+                    label= f"Tendance {complex_label}",
                     alpha=0.5,
-                )
+            )
 
-            elif "O(n)" in label.lower():
-                # Tendance O(n)
-                theo = [n for n in n_values]
-                k = t_mid / n_mid
-                theo_times = [k * val for val in theo]
-                plt.plot(
-                    n_values,
-                    theo_times,
-                    "--",
-                    label="Tendance O(n)",
-                    alpha=0.5,
-                )
 
         plt.xlabel("Nombre de demandes", fontsize=12)
         plt.ylabel("Temps (s)", fontsize=12)
@@ -143,13 +129,14 @@ class ComplexiteTempo:
         n_values = list(range(1, nbr_of_demand + 1))
 
         labels = list(self.functions_dict.keys())
-        funcs = list(self.functions_dict.values())
+        funcs = [f[0] for f in self.functions_dict.values()]
+        complexity = [f[1] for f in self.functions_dict.values()]
+        complex_labels = labels_complexity = [f[2] for f in self.functions_dict.values()]
+
 
         # Exécute le benchmark pour chaque fonction.
         benchmark_results = [self.benchmark_function(func, n_values) for func in funcs]
 
         # Affiche les résultats.
-        self.plot_benchmarks(n_values, benchmark_results, labels, self.generateur)
-
-
+        self.plot_benchmarks(n_values, benchmark_results, labels, complexity, complex_labels, self.generateur)
 
