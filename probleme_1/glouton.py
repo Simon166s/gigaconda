@@ -1,6 +1,6 @@
 from util import *
 from enumeration import appel_enumeration_exhaustive
-from recuit_simule import recruit_simule
+from recuit_simule import recuit_simule
 import numpy as np
 from common import *
 
@@ -8,6 +8,15 @@ from common import *
 # 1. Algorithme glouton pour générer la solution initiale
 # ---------------------------
 def glouton(coordonnees: np.array) -> list:
+    """Approche gloutonne qui fournit une solution basée une approche ou on prend a chaque fois le point
+    le plus proche du point courant en terme de distance de manière à minimiser le parcours
+
+    Args:
+        coordonnees (np.array): array des coordonnés de chaque points du problème à résoudre
+
+    Returns:
+        list: la solution gloutonne générée
+    """    
     # On commence à (0,0)
     point_courant = (0, 0)
     solution_courante = [point_courant]
@@ -27,6 +36,20 @@ def glouton(coordonnees: np.array) -> list:
 # 2. Heuristique locale avec fenêtre dynamique (k variant de k_min à k_max)
 # ---------------------------
 def heuristique_locale_fenetre_dynamique(solution_glouton: np.array, k_min: int = 3, k_max: int = 6) -> list:
+    """     Optimise localement une solution en appliquant une heuristique de recherche par fenêtre dynamique.
+
+    Cette fonction améliore la solution initiale obtenue par une approche gloutonne. Elle parcourt la solution à l'aide d'une fenêtre de taille variable (allant de k_min à k_max) et, pour chaque sous-séquence de points, 
+    elle applique un algorithme d'énumération exhaustive (via la fonction appel_enumeration_exhaustive) afin de trouver une permutation qui réduit la distance totale. 
+    Dès qu'une amélioration est détectée, la solution est mise à jour, et le processus est répété jusqu'à ce qu'aucune optimisation supplémentaire ne soit possible.
+
+    Args:
+        solution_glouton (np.array): la solution initiale
+        k_min (int, optional): taille minimale de la fenêtre. Par défaut la valeur est 3.
+        k_max (int, optional): taille maximale de la fenêtre. Par défaut la valeur est  6.
+
+    Returns:
+        list: La solution optimisée obtenue après avoir appliqué l'heuristique locale sur l'ensemble de la solution.
+    """    
     # On utilise une copie de la solution glouton pour éviter de modifier la solution d'origine
     solution_actuelle = solution_glouton.copy()  
     amelioration_trouvee = True
@@ -71,7 +94,26 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: np.array, k_min: int 
 # 3. Heuristique locale par échange de deux points 
 # ---------------------------
 
-def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, max_stagnation: int = 1000)-> list:
+def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, max_stagnation: int = 1000) -> np.array:
+    """
+    Optimise localement une solution en échangeant aléatoirement un certain nombre de points.
+
+    Cette fonction applique une heuristique d'optimisation locale qui consiste à échanger des points 
+    dans la solution (obtenue par une approche gloutonne) pour tenter d’améliorer la distance 
+    totale parcourue. Pour chaque itération, un échange de `nbr_points` est réalisé via la fonction `echanger_points`. 
+    Si l'échange aboutit à une diminution de la distance totale, la solution est mise à jour et le compteur 
+    d'améliorations est incrémenté. Sinon, un compteur de stagnation est incrémenté. Le processus se poursuit 
+    jusqu'à atteindre le seuil maximum d'améliorations ou de stagnation.
+
+    Args:
+        solution_glouton (np.array): La solution initiale obtenue par une approche gloutonne, typiquement un tableau numpy représentant l’ordre des points.
+        nbr_points (int, optional): Le nombre de points à échanger lors de chaque itération d'optimisation. Par défaut, la valeur est 5.
+        max_stagnation (int, optional): Le nombre maximum d'itérations sans amélioration (ou nombre maximum d'améliorations) avant l'arrêt de l'optimisation. Par défaut, la valeur est 1000.
+
+    Returns:
+        np.array: 
+            La solution optimisée sous forme d'un tableau numpy après application de l'heuristique d'échange.
+    """
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
@@ -86,15 +128,32 @@ def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, 
 
     return solution_optimisee
 
+
 # ---------------------------
 # 4. Heuristique locale par échange d'un segment de k points consécutifs
 # ---------------------------
-def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: int = 4, max_stagnation: int = 1000) -> list:
+def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: int = 4, max_stagnation: int = 1000) -> np.array:
+    """
+    Améliore localement une solution en échangeant des segments consécutifs de points.
+
+    La fonction tente d'optimiser la solution initiale (obtenue par une méthode gloutonne)
+    en réalisant des échanges de segments de `nbr_points` points de manière aléatoire. Si l'échange
+    permet de réduire la distance totale (calculée par `distance_totale`), la solution est mise à jour.
+    Le processus s'arrête dès qu'aucune amélioration n'est obtenue pendant `max_stagnation` itérations.
+
+    Args:
+        solution_glouton (np.array): La solution initiale sous forme de tableau numpy représentant l'ordre des points.
+        nbr_points (int, optional): Le nombre de points consécutifs à échanger lors de chaque itération. Par défaut, la valeur est 4.
+        max_stagnation (int, optional): Le nombre maximal d'itérations sans amélioration consécutive avant l'arrêt de l'algorithme. Par défaut, la valeur est 1000.
+
+    Returns:
+        np.array: La solution optimisée sous forme d'un tableau numpy.
+    """
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
 
-    # On continue d'essayer des amélioration jusqu'à ce qu'une des conditions soit remplie 
+    # On continue d'essayer d'améliorer la solution tant que le seuil d'amélioration ou de stagnation n'est pas atteint
     while nb_ameliorations < max_stagnation and stagnation < max_stagnation:
         solution_potentielle = echanger_segment_consecutif(solution_optimisee, nbr_points)
         if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
@@ -105,53 +164,106 @@ def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: i
             stagnation += 1
     return solution_optimisee
 
+
 # 2-opt : échange de deux arêtes dans notre solution
-def heuristique_locale_2_opt(solution_initiale, max_stagnation=100000):
+def heuristique_locale_2_opt(solution_initiale, max_stagnation=100):
+    """
+    Optimise localement une solution en appliquant l'algorithme 2-opt.
+
+    Cette fonction met en œuvre l'heuristique 2-opt pour améliorer une solution initiale.
+    À chaque itération, la fonction génère une solution candidate en échangeant deux segments de la solution actuelle. Si 
+    la distance totale de la solution candidate est inférieure, elle devient la nouvelle solution et le compteur de stagnation 
+    est réinitialisé. Sinon, le compteur de stagnation augmente. Le processus s'arrête lorsque le nombre d'itérations sans 
+    amélioration atteint max_stagnation.
+
+    Args:
+        solution_initiale (np.array): La solution initiale à optimiser, typiquement sous forme d'un tableau numpy représentant l'ordre des points.
+        max_stagnation (int, optional): Le nombre maximal d'itérations sans amélioration avant d'arrêter l'algorithme. Par défaut, la valeur est 100000.
+
+    Returns:
+        np.array: La solution optimisée après application de l'algorithme 2-opt.
+    """
+    # Initialisation de la solution courante
     solution = solution_initiale
+    # Compteur pour suivre le nombre d'itérations sans amélioration
     stagnation = 0
-    nb_ameliorations = 0
+    # Le processus s'arrête lorsqu'il y a trop d'itérations sans amélioration
     while stagnation < max_stagnation:
+        # Génère une solution candidate par l'algorithme 2-opt sur la solution actuelle
         solution_candidate = deux_opt(solution)
+
+        # Compare la distance totale de la solution candidate avec celle de la solution actuelle
         if distance_totale(solution_candidate) < distance_totale(solution):
+            # Si la solution candidate est meilleure, on l'adopte et on réinitialise le compteur de stagnation
             solution = solution_candidate
-            nb_ameliorations += 1
+            stagnation = 0  
         else:
+            # Sinon, on incrémente le compteur de stagnation
             stagnation += 1
+
     return solution
+
+
+
 # ---------------------------
 # 5. Définition des voisinages pour la stratégie hybride
 # ---------------------------
 
 # ordre fenetre , echange, echange segment 
-heuristiques_locales = [heuristique_locale_echange, heuristique_locale_echange_segment, heuristique_locale_fenetre_dynamique]
+heuristiques_locales = [heuristique_locale_2_opt, heuristique_locale_fenetre_dynamique]
 
 # ---------------------------
-# 6. Approche hybride combinant les approches 
+# 6. Approche hybride combinant les approches
 # ---------------------------
-def hybride(solution_initiale: np.array, heuristiques: list[callable], nb_iter_max: int = 100, stagnation_max: int = 100, delta_min: float = 0.001) -> list:
+def hybride(solution_initiale: np.array, heuristiques: list[callable], nb_iter_max: int = 100, stagnation_max: int = 100, delta_min: float = 0.001) -> np.array:
+    """
+    Combine plusieurs heuristiques pour optimiser une solution de manière hybride.
+
+    Cette fonction applique successivement une liste d'heuristiques sur une solution initiale afin de la faire évoluer vers une meilleure solution. 
+    Lorsqu'une heuristique améliore suffisamment (définie par delta_min) la solution courante, celle-ci est adoptée et le compteur de stagnation est réinitialisé. 
+    L'algorithme s'arrête lorsque le nombre maximal d'itérations ou le nombre maximal d'itérations sans amélioration (stagnation) est atteint.
+
+    Args:
+        solution_initiale (np.array): La solution de départ à optimiser, typiquement représentée par un tableau numpy (par exemple, l'ordre des points dans un TSP).
+        heuristiques (list[callable]): Une liste de fonctions heuristiques qui prennent une solution et renvoient une solution modifiée.
+        nb_iter_max (int, optional): Le nombre maximal d'itérations de l'algorithme. Par défaut 100.
+        stagnation_max (int, optional): Le nombre maximal d'itérations consécutives sans amélioration significative avant d'arrêter l'optimisation. Par défaut 100.
+        delta_min (float, optional): Le pourcentage minimal d'amélioration requis sur le coût total (distance) pour considérer une solution comme améliorée. Par défaut 0.001.
+
+    Returns:
+        np.array: La solution optimisée sous forme de tableau numpy après application hybride des heuristiques.
+    """
+    # Initialisation de la solution courante, des compteurs et du coût de la solution
     solution_courante = solution_initiale
     nb_iterations = 0
     stagnation = 0
     cout_courant = distance_totale(solution_courante)
     
+    # Boucle principale d'optimisation
     while nb_iterations < nb_iter_max and stagnation < stagnation_max:
         amelioration = False
+        # Application des heuristiques une par une
         for heuristique in heuristiques:
             solution_candidature = heuristique(solution_courante)
             cout_candidature = distance_totale(solution_candidature)
-
-            # ? si l'amélioration n'est pas significative, on conserve la solution d'avant pour ne pas apporter du désordre 
+            
+            # Vérifie si la solution candidate présente une amélioration suffisante
             if cout_candidature < cout_courant * (1 - delta_min): 
+                # Mise à jour de la solution courante et réinitialisation du compteur de stagnation
                 solution_courante = solution_candidature
                 cout_courant = cout_candidature
                 amelioration = True
                 stagnation = 0  
-                break  
+                break  # Arrête la boucle des heuristiques dès qu'une amélioration est trouvée
+        
+        # Si aucune heuristique n'a permis d'améliorer la solution, incrémente le compteur de stagnation
         if not amelioration:
             stagnation += 1
-        nb_iterations += 1
+        
+        nb_iterations += 1  # Incrémente le compteur global d'itérations
         
     return solution_courante
+
 
 
 if __name__ == "__main__":
@@ -160,8 +272,10 @@ if __name__ == "__main__":
     print("Distance initiale :", distance_totale(solution_initiale))
     solution_amelioree = hybride(solution_initiale, heuristiques_locales)
     print("Distance hybride améliorée :", distance_totale(solution_amelioree))
-    solution_recuit = recruit_simule(solution_amelioree)
-    print("Distance recuit améliorée :", distance_totale(solution_recuit))
+
+    # * Ajout du recuit 
+    # solution_recuit = recuit_simule(solution_amelioree)
+    # print("Distance recuit améliorée :", distance_totale(solution_recuit))
 
 
 
