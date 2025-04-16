@@ -1,4 +1,3 @@
-#%%
 from util import *
 from main import *
 from recuit_simule import recruit_simule
@@ -159,14 +158,14 @@ def hybride(solution_initiale: list, heuristiques: list[callable], nb_iter_max: 
         
     return solution_courante
 
-coordonnees = lire_fichier_coords("exemple2.txt")
-solution_initiale = glouton(coordonnees)
-print("Distance initiale :", distance_totale(solution_initiale))
-# solution_amelioree = hybride(solution_initiale, heuristiques_locales)
-# print("Distance hybride améliorée :", distance_totale(solution_amelioree))
-solution_2_opt = heuristique_locale_2_opt(solution_initiale)
-print("Distance finale avec 2_opt", distance_totale(solution_2_opt))
-# solution_recuit = recruit_simule(solution_amelioree)
-# print("Distance recuit améliorée :", distance_totale(solution_recuit))
-
+if __name__ == "__main__":
+    coordonnees = lire_fichier_coords("exemple2.txt")
+    solution_initiale = glouton(coordonnees)
+    print("Distance initiale :", distance_totale(solution_initiale))
+    # solution_amelioree = hybride(solution_initiale, heuristiques_locales)
+    # print("Distance hybride améliorée :", distance_totale(solution_amelioree))
+    solution_2_opt = heuristique_locale_2_opt(solution_initiale)
+    print("Distance finale avec 2_opt", distance_totale(solution_2_opt))
+    # solution_recuit = recruit_simule(solution_amelioree)
+    # print("Distance recuit améliorée :", distance_totale(solution_recuit))
 

@@ -1,7 +1,12 @@
+# %%
+
 import matplotlib.pyplot as plt
 import timeit
 import numpy as np
 import generateurs_coord
+import glouton as glt
+import main as exaus
+import math
 
 class ComplexiteTempo:
     def __init__(
@@ -114,7 +119,7 @@ class ComplexiteTempo:
         plt.title(f"Tendances de complexité\nDonnées: {generateur.__name__}", pad=20)
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.yscale("log")
+        # plt.yscale("log")
         plt.tight_layout()
         plt.show()
 
@@ -131,12 +136,16 @@ class ComplexiteTempo:
         labels = list(self.functions_dict.keys())
         funcs = [f[0] for f in self.functions_dict.values()]
         complexity = [f[1] for f in self.functions_dict.values()]
-        complex_labels = labels_complexity = [f[2] for f in self.functions_dict.values()]
+        labels_complexity = [f[2] for f in self.functions_dict.values()]
 
 
         # Exécute le benchmark pour chaque fonction.
         benchmark_results = [self.benchmark_function(func, n_values) for func in funcs]
 
         # Affiche les résultats.
-        self.plot_benchmarks(n_values, benchmark_results, labels, complexity, complex_labels, self.generateur)
+        self.plot_benchmarks(n_values, benchmark_results, labels, complexity, labels_complexity, self.generateur)
 
+viz = ComplexiteTempo(functions_dict = {
+                                        "Solution glouton": (glt.glouton, lambda n : n**2, "O(n^2)" )})
+viz.main(60)
+# %%
