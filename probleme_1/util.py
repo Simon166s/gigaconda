@@ -15,7 +15,7 @@ def lire_fichier_coords(nom_fichier):
                     coords.append((float(x), float(y)))
         except:
             raise ValueError("Fichier de coordonnées mal formé")
-    return coords
+    return np.array(coords)
 
 
 def distance(p1, p2):

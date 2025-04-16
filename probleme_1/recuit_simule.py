@@ -1,7 +1,6 @@
 from util import *
+from common import *
 import random
-from glouton import *
-
 
 def voisin(S,nb_voisin_ech=1):
     #nb_voisin_ech déterminer au hasard
@@ -22,7 +21,12 @@ def prob(dE,T):
     else:
         return np.exp(-dE/(T+0.00001))
 
-def recruit_simule(S0,kmax=10,nb_arc_ech=1,fonction=None):
+fonction1 = lambda x:A*alpha**x
+fonction2 = lambda x:1.8*(1-x/1)
+fonction1 = lambda x:1.8 - 1.8*np.cos()
+fonction3 = lambda x: 1.8/np.log(1 + x)
+
+def recruit_simule(S0,kmax=10,nb_arc_ech=1,fonction=fonction3):
     S=S0
     meilleur_dist = float('inf')
     for k in range(1,kmax):
@@ -35,16 +39,12 @@ def recruit_simule(S0,kmax=10,nb_arc_ech=1,fonction=None):
 
 coord = lire_fichier_coords("exemple2.txt")
 #affiche_points(coord)
-
-S = glouton(coord)
 #affiche_tournee(S)
 A = 0.5
 alpha = 0.99
 
-fonction1 = lambda x:A*alpha**x
-fonction2 = lambda x:1.8*(1-x/1)
-#fonction1 = lambda x:1.8 - 1.8*np.cos()
 
-new_S = recruit_simule(S,30000,1,fonction=fonction2)
-affiche_tournee(S)
-affiche_tournee(new_S)
+
+# new_S = recruit_simule(S,30000,1,fonction=fonction2)
+# affiche_tournee(S)
+# affiche_tournee(new_S)
