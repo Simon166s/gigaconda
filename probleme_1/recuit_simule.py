@@ -4,9 +4,8 @@ from glouton import *
 
 
 def voisin(S,nb_voisin_ech=1):
-    Sprime = echanger_arcs(S)
-    for i in range(1,nb_voisin_ech):
-        Sprime = echanger_arcs(Sprime)
+    #nb_voisin_ech déterminer au hasard
+    Sprime = echanger_segment_consecutif(S,nb_voisin_ech)
 
     # affiche_tournee(Sprime)
     return Sprime
@@ -35,6 +34,8 @@ affiche_points(coord)
 
 S = glouton(coord)
 #affiche_tournee(S)
-new_S = recruit_simule(S,10000,1,fonction= lambda x:0.1*np.exp(-x**3))
+A = 100
+alpha = 0.95
+new_S = recruit_simule(S,1000,1,fonction= lambda x:A*alpha**x)
 affiche_tournee(S)
 affiche_tournee(new_S)
