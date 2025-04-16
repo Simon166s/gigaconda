@@ -1,5 +1,5 @@
 from util import *
-from main import appel_cacul_tournee
+from main import appel_calcul_tournee
 from recuit_simule import recruit_simule
 import random
 import numpy as np
@@ -72,7 +72,7 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: np.array, k_min: int 
 # 3. Heuristique locale par échange de deux points 
 # ---------------------------
 
-def heuristique_locale_echange(solution_glouton: list, nbr_points: int = 5, max_stagnation: int = 1000)-> list:
+def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, max_stagnation: int = 1000)-> list:
     nb_ameliorations = 0
     stagnation = 0
     solution_optimisee = solution_glouton
@@ -126,18 +126,17 @@ def heuristique_locale_2_opt(solution_initiale, max_stagnation=100000):
         else:
             stagnation += 1
     return solution
-        
 # ---------------------------
 # 5. Définition des voisinages pour la stratégie hybride
 # ---------------------------
 
 # ordre fenetre , echange, echange segment 
-heuristiques_locales = [heuristique_locale_2_opt]
+heuristiques_locales = [heuristique_locale_echange, heuristique_locale_echange_segment, heuristique_locale_fenetre_dynamique]
 
 # ---------------------------
 # 6. Approche hybride combinant les approches 
 # ---------------------------
-def hybride(solution_initiale: list, heuristiques: list[callable], nb_iter_max: int = 100, stagnation_max: int = 100, delta_min: float = 0.001) -> list:
+def hybride(solution_initiale: np.array, heuristiques: list[callable], nb_iter_max: int = 100, stagnation_max: int = 100, delta_min: float = 0.001) -> list:
     solution_courante = solution_initiale
     nb_iterations = 0
     stagnation = 0
@@ -161,6 +160,7 @@ def hybride(solution_initiale: list, heuristiques: list[callable], nb_iter_max: 
         nb_iterations += 1
         
     return solution_courante
+
 
 coordonnees = lire_fichier_coords("exemple2.txt")
 solution_initiale = glouton(coordonnees)
