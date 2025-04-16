@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import timeit
 import numpy as np
+import math
 from glouton import (
     glouton,
     heuristique_locale_fenetre_dynamique,
@@ -196,6 +197,14 @@ function_dict = {
     # ! Utiliser le générateur heuristique pour les tracés ci-dessous
     # "recuit simule": (recuit_simule, lambda n : 10000*n, "O(kmax*n)" ),
     # "Fenetre dynamique": (heuristique_locale_fenetre_dynamique, lambda n : 120 * n**2, "O(n² × k_max!)" ),
+    # "glouton": (glouton, lambda n : n**2, "O(n²)" ),
+    # "recuit simule": (recuit_simule, lambda n : 10000*n, "O(kmax*n)" ),
+    # "Fenetre dynamique": (heuristique_locale_fenetre_dynamique, lambda n : 120 * n**2, "O(n² x k_max!)" ),
+    # "Echange de points": (heuristique_locale_echange, lambda n : 100000 * n, "O(max_iter x n)" ),
+    # "Echange de segments": (heuristique_locale_echange_segment, lambda n : 100000 * n, "O(max_iter x n)" ),
+    # "2-opt": (heuristique_locale_2_opt, lambda n : 100000 * n**2, "O(max_iter x n²)" ),
+    # "Hybride": (hybride, lambda n : 100000 * (n**2 + n**2 + n**2), "O(nb_iter_max x (n² + k_max! x n²))" ),
+
 }
 viz = ComplexiteTempo(functions_dict=function_dict)
 
