@@ -1,5 +1,5 @@
 from util import *
-from main import appel_calcul_tournee
+from probleme_1.enumeration import appel_calcul_tournee
 from recuit_simule import recruit_simule
 import random
 import numpy as np

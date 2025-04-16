@@ -5,7 +5,7 @@ import timeit
 import numpy as np
 import generateurs_coord
 import glouton as glt
-import main as exaus
+import probleme_1.enumeration as exaus
 import math
 
 class ComplexiteTempo:
