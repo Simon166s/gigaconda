@@ -13,7 +13,7 @@ def voisin(S):
     """
     nb_voisin_ech = random.randint(1,4)
     for i in range(0,nb_voisin_ech):
-        Sprime = deux_opt(S)
+        Sprime = deux_opt(S, recuit=True)
     return Sprime
 
 def temperature(t,fonction):
@@ -48,11 +48,11 @@ def prob(dE : float,T : float):
 A = 0.5
 alpha = 0.99
 fonction1 = lambda x:A*alpha**x
-fonction2 = lambda x:1.8*(1-x/1)
+fonction2 = lambda x:1.8*(1-x)
 fonction1 = lambda x:1.8 - 1.8*np.cos()
 fonction3 = lambda x: 1.8/np.log(1 + x)
 
-def recuit_simule(S0 : np.array,kmax : int =30000,fonction : function =fonction3):
+def recuit_simule(S0 : np.array,kmax : int =30000,fonction : callable =fonction2):
     """Fait le recuit_simule à partir d'une solution locale
 
     Args:

@@ -4,6 +4,7 @@ from recuit_simule import recuit_simule
 import numpy as np
 from common import *
 
+
 # ---------------------------
 # 1. Algorithme glouton pour générer la solution initiale
 # ---------------------------
@@ -94,7 +95,7 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: np.array, k_min: int 
 # 3. Heuristique locale par échange de deux points 
 # ---------------------------
 
-def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, max_stagnation: int = 1000) -> np.array:
+def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5,max_iter =30000, max_stagnation: int = 30000) -> np.array:
     """
     Optimise localement une solution en échangeant aléatoirement un certain nombre de points.
 
@@ -114,25 +115,27 @@ def heuristique_locale_echange(solution_glouton: np.array, nbr_points: int = 5, 
         np.array: 
             La solution optimisée sous forme d'un tableau numpy après application de l'heuristique d'échange.
     """
-    nb_ameliorations = 0
+    solution = solution_glouton.copy()    # Compteur pour suivre le nombre d'itérations sans amélioration
     stagnation = 0
-    solution_optimisee = solution_glouton
-    while nb_ameliorations < max_stagnation and stagnation < max_stagnation:
-        solution_potentielle = echanger_points(solution_optimisee, nbr_points)
-        if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
-            solution_optimisee = solution_potentielle
-            nb_ameliorations += 1
-            stagnation = 0
+    distance_actuelle = distance_totale(solution)
+    compteur_iter = 0
+    stagnation = 0
+
+    while compteur_iter < max_iter and stagnation < max_stagnation:
+        solution, distance_actuelle, modif = echanger_points(solution, nbr_points, distance_actuelle = distance_actuelle)
+        print(distance_actuelle)
+        if modif:
+            stagnation = 0  # réinitialise car on a trouvé une amélioration
         else:
             stagnation += 1
-
-    return solution_optimisee
+        compteur_iter += 1
+    return solution
 
 
 # ---------------------------
 # 4. Heuristique locale par échange d'un segment de k points consécutifs
 # ---------------------------
-def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: int = 4, max_stagnation: int = 1000) -> np.array:
+def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: int = 4, max_iter: int  = 1000, max_stagnation: int = 1000) -> np.array:
     """
     Améliore localement une solution en échangeant des segments consécutifs de points.
 
@@ -149,24 +152,24 @@ def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: i
     Returns:
         np.array: La solution optimisée sous forme d'un tableau numpy.
     """
-    nb_ameliorations = 0
+    solution = solution_glouton.copy()    # Compteur pour suivre le nombre d'itérations sans amélioration
     stagnation = 0
-    solution_optimisee = solution_glouton
+    distance_actuelle = distance_totale(solution)
+    compteur_iter = 0
+    stagnation = 0
 
-    # On continue d'essayer d'améliorer la solution tant que le seuil d'amélioration ou de stagnation n'est pas atteint
-    while nb_ameliorations < max_stagnation and stagnation < max_stagnation:
-        solution_potentielle = echanger_segment_consecutif(solution_optimisee, nbr_points)
-        if distance_totale(solution_potentielle) < distance_totale(solution_optimisee):
-            solution_optimisee = solution_potentielle
-            nb_ameliorations += 1
-            stagnation = 0
+    while compteur_iter < max_iter and stagnation < max_stagnation:
+        solution, distance_actuelle, modif = echanger_segment_consecutif(solution, nbr_points, distance_actuelle = distance_actuelle)
+        if modif:
+            stagnation = 0  # réinitialise car on a trouvé une amélioration
         else:
             stagnation += 1
-    return solution_optimisee
+        compteur_iter += 1
+    return solution
 
 
 # 2-opt : échange de deux arêtes dans notre solution
-def heuristique_locale_2_opt(solution_initiale, max_stagnation=100):
+def heuristique_locale_2_opt(solution_glouton, max_iter=100000, max_stagnation =100000):
     """
     Optimise localement une solution en appliquant l'algorithme 2-opt.
 
@@ -184,23 +187,19 @@ def heuristique_locale_2_opt(solution_initiale, max_stagnation=100):
         np.array: La solution optimisée après application de l'algorithme 2-opt.
     """
     # Initialisation de la solution courante
-    solution = solution_initiale
-    # Compteur pour suivre le nombre d'itérations sans amélioration
+    solution = solution_glouton.copy()    # Compteur pour suivre le nombre d'itérations sans amélioration
     stagnation = 0
-    # Le processus s'arrête lorsqu'il y a trop d'itérations sans amélioration
-    while stagnation < max_stagnation:
-        # Génère une solution candidate par l'algorithme 2-opt sur la solution actuelle
-        solution_candidate = deux_opt(solution)
+    distance_actuelle = distance_totale(solution)
+    compteur_iter = 0
+    stagnation = 0
 
-        # Compare la distance totale de la solution candidate avec celle de la solution actuelle
-        if distance_totale(solution_candidate) < distance_totale(solution):
-            # Si la solution candidate est meilleure, on l'adopte et on réinitialise le compteur de stagnation
-            solution = solution_candidate
-            stagnation = 0  
+    while compteur_iter < max_iter and stagnation < max_stagnation:
+        solution, distance_actuelle, modif = deux_opt(solution, recuit=False, distance_actuelle= distance_actuelle)
+        if modif:
+            stagnation = 0  # réinitialise car on a trouvé une amélioration
         else:
-            # Sinon, on incrémente le compteur de stagnation
             stagnation += 1
-
+        compteur_iter += 1
     return solution
 
 
@@ -210,7 +209,12 @@ def heuristique_locale_2_opt(solution_initiale, max_stagnation=100):
 # ---------------------------
 
 # ordre fenetre , echange, echange segment 
-heuristiques_locales = [heuristique_locale_2_opt, heuristique_locale_fenetre_dynamique]
+heuristiques_locales = [
+    heuristique_locale_echange_segment,  # grosses modifications
+    heuristique_locale_echange,          # raffinage
+    heuristique_locale_2_opt,            # bon polisseur général
+    heuristique_locale_fenetre_dynamique # micro-optimisation variable
+]
 
 # ---------------------------
 # 6. Approche hybride combinant les approches
@@ -270,12 +274,18 @@ if __name__ == "__main__":
     coordonnees = lire_fichier_coords("exemple2.txt")
     solution_initiale = glouton(coordonnees)
     print("Distance initiale :", distance_totale(solution_initiale))
-    solution_amelioree = hybride(solution_initiale, heuristiques_locales)
-    print("Distance hybride améliorée :", distance_totale(solution_amelioree))
 
-    # * Ajout du recuit 
-    # solution_recuit = recuit_simule(solution_amelioree)
+    # # # * Ajout du recuit 
+    # solution_recuit = recuit_simule(solution_initiale)
     # print("Distance recuit améliorée :", distance_totale(solution_recuit))
+
+    solution = heuristique_locale_echange(solution_initiale)
+    print("Distance solution 2 opt", distance_totale(solution))
+    # solution_amelioree = hybride(solution_initiale, heuristiques_locales)
+    # print("Distance hybride améliorée :", distance_totale(solution_amelioree))
+
+
+
 
 
 
