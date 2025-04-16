@@ -3,16 +3,43 @@
 import matplotlib.pyplot as plt
 import timeit
 import numpy as np
-import generateurs_coord
-from glouton import glouton
+from glouton import (
+    glouton,
+    heuristique_locale_fenetre_dynamique,
+    heuristique_locale_echange,
+    heuristique_locale_echange_segment,
+    heuristique_locale_2_opt,
+    hybride,
+)
+
 from enumeration import appel_enumeration_exhaustive
-import math
+from recuit_simule import recuit_simule
+import random
+
+
+def generateur_donnee(n: int) -> np.array:
+    """Génère des points entre -100 et 100
+
+    Args:
+        n (int): nombre de points
+
+    Returns:
+        list: liste de points à optimiser
+    """
+    return np.array(
+        [(random.randint(-100, 100), random.randint(-100, 100)) for _ in range(n)]
+    )
+
+
+def generateur_donnee_heuristique(n: int) -> np.array:
+    """Génère une liste classé avec glouton pour les heuristique et le recuit"""
+    return glouton(np.array(generateur_donnee(n)))
+
 
 class ComplexiteTempo:
     def __init__(
         self,
         functions_dict: dict = None,
-        generateur= generateurs_coord.generateur_donnee,
     ):
         """Initialise l'objet avec les fonctions à évaluer et le generateur de donné choisi
 
@@ -21,7 +48,7 @@ class ComplexiteTempo:
             functions_dict (dict, optional): les fonctions à tester avec leur label  . Defaults to None
             generateur (_type_, optional): la fonction générative de données. Defaults to generateur_non_chevauchant.
         """
-        self.generateur = generateur
+        self.generateur = generateur_donnee_heuristique
         self.functions_dict = functions_dict
 
     def wrapper(self, func: callable, n: int) -> callable:
@@ -72,7 +99,12 @@ class ComplexiteTempo:
 
     @staticmethod
     def plot_benchmarks(
-        n_values: int, benchmark_results: list, labels: str, complexity: callable, complex_labels: str, generateur: callable
+        n_values: int,
+        benchmark_results: list,
+        labels: str,
+        complexity: callable,
+        complex_labels: str,
+        generateur: callable,
     ) -> None:
         """Affichage des courbes à partir des temps d'execution calculés, utilisation des labels
         pour afficher aussi les courbes théoriques
@@ -85,7 +117,9 @@ class ComplexiteTempo:
         """
         plt.figure(figsize=(12, 7))
         plt.style.use("seaborn-v0_8-darkgrid")
-        for i, (label, times, complex_func, complex_label) in enumerate(zip(labels, benchmark_results, complexity, complex_labels)):
+        for i, (label, times, complex_func, complex_label) in enumerate(
+            zip(labels, benchmark_results, complexity, complex_labels)
+        ):
             # Affichage réel
             plt.plot(
                 n_values,
@@ -106,15 +140,14 @@ class ComplexiteTempo:
             k = t_mid / (complex_func(n_mid))
             theo_times = [k * val for val in theo]
             plt.plot(
-                    n_values,
-                    theo_times,
-                    "--",
-                    label= f"Tendance {complex_label}",
-                    alpha=0.5,
+                n_values,
+                theo_times,
+                "--",
+                label=f"Tendance {complex_label}",
+                alpha=0.5,
             )
 
-
-        plt.xlabel("Nombre de demandes", fontsize=12)
+        plt.xlabel("Nombre de points", fontsize=12)
         plt.ylabel("Temps (s)", fontsize=12)
         plt.title(f"Tendances de complexité\nDonnées: {generateur.__name__}", pad=20)
         plt.legend()
@@ -131,21 +164,42 @@ class ComplexiteTempo:
             nbr_of_demand (int): le nombre de données maximum en entré
         """
         # Définition des tailles de données à tester.
-        n_values = list(range(1, nbr_of_demand + 1))
+        n_values = list(range(2, nbr_of_demand + 1))
 
         labels = list(self.functions_dict.keys())
         funcs = [f[0] for f in self.functions_dict.values()]
         complexity = [f[1] for f in self.functions_dict.values()]
         labels_complexity = [f[2] for f in self.functions_dict.values()]
 
-
         # Exécute le benchmark pour chaque fonction.
         benchmark_results = [self.benchmark_function(func, n_values) for func in funcs]
 
         # Affiche les résultats.
-        self.plot_benchmarks(n_values, benchmark_results, labels, complexity, labels_complexity, self.generateur)
+        self.plot_benchmarks(
+            n_values,
+            benchmark_results,
+            labels,
+            complexity,
+            labels_complexity,
+            self.generateur,
+        )
 
-viz = ComplexiteTempo(functions_dict = {"Solution exaustive": (appel_enumeration_exhaustive, lambda n: math.factorial(n), "O(n!)"),
-                                        "Solution glouton": (glouton, lambda n : n**2, "O(n^2)" )})
-viz.main(5)
+
+function_dict = {
+    # ! Utiliser le générateur normal pour les tracés ci-dessous
+    "Solution exaustive": (
+        appel_enumeration_exhaustive,
+        lambda n: math.factorial(n),
+        "O(n!)",
+    ),
+    "Solution glouton": (glouton, lambda n: n**2, "O(n^2)"),
+    # ! Utiliser le générateur heuristique pour les tracés ci-dessous
+    # "recuit simule": (recuit_simule, lambda n : 10000*n, "O(kmax*n)" ),
+    # "Fenetre dynamique": (heuristique_locale_fenetre_dynamique, lambda n : 120 * n**2, "O(n² × k_max!)" ),
+}
+viz = ComplexiteTempo(functions_dict=function_dict)
+
+# changer la valeur ci dessous pour visualiser plus de points
+viz.main(7)
+
 # %%
