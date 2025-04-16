@@ -1,7 +1,6 @@
 from util import *
-from probleme_1.enumeration import appel_calcul_tournee
+from enumeration import appel_enumeration_exhaustive
 from recuit_simule import recruit_simule
-import random
 import numpy as np
 from common import *
 
@@ -42,7 +41,7 @@ def heuristique_locale_fenetre_dynamique(solution_glouton: np.array, k_min: int 
                 # Extraction de la sous-partie de la solution
                 sous_partie = solution_actuelle[i : i + k]
                 # Optimisation de la sous-partie via la fonction appel_cacul_tournee
-                modification = appel_calcul_tournee(sous_partie)
+                modification = appel_enumeration_exhaustive(sous_partie)
                 
                 # Suppression du point de retour (0, 0) en fin et en début de la solution optimisée
                 modification = modification [1:-1]   # enlève le dernier élément
@@ -107,13 +106,6 @@ def heuristique_locale_echange_segment(solution_glouton: np.array, nbr_points: i
     return solution_optimisee
 
 # 2-opt : échange de deux arêtes dans notre solution
-def deux_opt(solution):
-    n = len(solution)
-    i, j = sorted(random.sample(range(1, len(solution)), 2)) 
-    # Crée une nouvelle solution avec inversion du segment [i, j]
-    nouvelle = solution[:i] + solution[i:j+1][::-1] + solution[j+1:] # à réécrire vu que c'est chat gpt
-    return nouvelle
-
 def heuristique_locale_2_opt(solution_initiale, max_stagnation=100000):
     solution = solution_initiale
     stagnation = 0
@@ -162,12 +154,14 @@ def hybride(solution_initiale: np.array, heuristiques: list[callable], nb_iter_m
     return solution_courante
 
 
-coordonnees = lire_fichier_coords("exemple2.txt")
-solution_initiale = glouton(coordonnees)
-print("Distance initiale :", distance_totale(solution_initiale))
-solution_amelioree = hybride(solution_initiale, heuristiques_locales)
-print("Distance hybride améliorée :", distance_totale(solution_amelioree))
-solution_recuit = recruit_simule(solution_amelioree)
-print("Distance recuit améliorée :", distance_totale(solution_recuit))
+if __name__ == "__main__":
+    coordonnees = lire_fichier_coords("exemple2.txt")
+    solution_initiale = glouton(coordonnees)
+    print("Distance initiale :", distance_totale(solution_initiale))
+    solution_amelioree = hybride(solution_initiale, heuristiques_locales)
+    print("Distance hybride améliorée :", distance_totale(solution_amelioree))
+    solution_recuit = recruit_simule(solution_amelioree)
+    print("Distance recuit améliorée :", distance_totale(solution_recuit))
+
 
 
