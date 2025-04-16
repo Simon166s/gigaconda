@@ -7,10 +7,10 @@ def voisin(S):
     """Génère une nouvelle solution proche de S
 
     Args:
-        S (): _description_
+        S (numpy a): Solution provisoire
 
     Returns:
-        _type_: _description_
+        Sprime solution voisine de S
     """
     nb_voisin_ech = random.randint(1, 4)
     for i in range(0, nb_voisin_ech):
@@ -39,7 +39,7 @@ def prob(dE: float, T: float):
         T (float): Température calculée
 
     Returns:
-        _type_: _description_
+        la probabilité (float)
     """
     if dE < 0:  # si dE<0 alors distance_totale(Sprime)<distance_totale(S)
         # donc Sprime et plus interessant que S -> On le choisit avec une probas de 1
@@ -81,7 +81,8 @@ def recuit_simule(S0: np.array, kmax: int = 30000, fonction: callable = fonction
             S = Sprime
     return S
 
-
-coord = lire_fichier_coords("exemple2.txt")
-# affiche_points(coord)
-# affiche_tournee(S)
+if __name__ == "__main__":
+    coord = lire_fichier_coords("exemple2.txt")
+    affiche_points(coord)
+    tournee = recu
+    affiche_tournee(tournee)
