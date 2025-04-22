@@ -24,9 +24,10 @@ def lire_fichier(nom_fichier: str) -> tuple[np.array]:
                     for mot in ligne.split(" "):
                         longueurs_mots.append(len(mot))
                         mots.append(mot)
+                        print(mots)
         except:
             raise ValueError("Fichier de coordonnées mal formé")
-    return np.array(longueurs_mots), np.array(mot)
+    return np.array(longueurs_mots), np.array(mots)
 
 
 def remplir_matrice_depuis_longueurs(mots: np.array, matrice_longueurs: np.array) -> np.array:
@@ -56,10 +57,6 @@ def remplir_matrice_depuis_longueurs(mots: np.array, matrice_longueurs: np.array
                 matrice_mots[i, j] = ""
     return matrice_mots
 
-mots = ["a,", "bb", "cc"]
-matrice_longueur = np.array([[2, 0],[2, 2]])
-matrice_de_mot = remplir_matrice_depuis_longueurs(mots, matrice_longueur)
-print(matrice_de_mot)
 
 def reconstruire_texte(matrice: np.array) -> str:
     """Reconstruir un texte à partir d'une matrice de mots
@@ -76,6 +73,5 @@ def reconstruire_texte(matrice: np.array) -> str:
         lignes.append(" ".join(mots_valides))
     return "\n".join(lignes)
 
-print(reconstruire_texte(matrice_de_mot))
 
 
