@@ -1,0 +1,23 @@
+digraph RecursionTree {
+    rankdir=TB;               
+    node [shape=box, style=filled];
+
+    // Nœuds 
+    n0  [label="C(4)",  fillcolor=lightgray];
+    n1  [label="C(3)",  fillcolor=lightgray];
+    n2  [label="C(2)",  fillcolor=lightgray];
+    n3  [label="C(1)",  fillcolor=lightgray];
+    n4  [label="C(0)",  fillcolor=lightgray];
+
+    // Arêtes (chaque sous-problème n'est calculé qu'une seule fois)
+    n0  -> n1;  
+    n0  -> n2;  
+
+    n1  -> n2;  
+    n1  -> n3;  
+
+    n2  -> n3;  
+    n2  -> n4;  
+
+    n3  -> n4;  
+}
