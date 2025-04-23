@@ -24,7 +24,6 @@ def lire_fichier(nom_fichier: str) -> tuple[np.array]:
                     for mot in ligne.split(" "):
                         longueurs_mots.append(len(mot))
                         mots.append(mot)
-                        print(mots)
         except:
             raise ValueError("Fichier de coordonnées mal formé")
     return np.array(longueurs_mots), np.array(mots)
