@@ -2,15 +2,34 @@ import numpy as np
 from common import lire_fichier
 
 
-def reconstruire_texte(liste_mots: np.array, coupures: dict) -> tuple[str, int]:
-    # Reconstruction du texte justifié
+def reconstruire_texte(liste_mots: np.ndarray, coupures: dict[int, int]) -> str:
+    """
+    Reconstruit le texte justifié à partir de la liste de mots et des positions de coupure.
+
+    Args:
+        liste_mots (np.ndarray):
+            Tableau contenant les mots du texte d'origine
+        coupures (dict[int, int]):
+            Dictionnaire qui associe chaque index de fin de ligne (exclu)
+            à l'index de début de cette même ligne.
+
+    Returns:
+        str:
+            Le texte justifié sous forme d'une chaîne de caractères, avec
+            chaque ligne séparée par un saut de ligne.
+    """
     lignes: list[str] = []
     fin = len(liste_mots)
+    # Traiter tous les mots 
     while fin > 0:
+        # On récupère où commence la dernière ligne
         debut = coupures.get(fin, 0)
+        # On assemble la ligne à partir de debut jusqu'à fin (exclu)
         lignes.insert(0, " ".join(liste_mots[debut:fin]))
+        # On recule la borne supérieure pour traiter la ligne précédente
         fin = debut
 
+    # On joint toutes les lignes par un retour à la ligne
     texte_justifie = "\n".join(lignes)
     return texte_justifie
 
