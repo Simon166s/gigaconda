@@ -4,27 +4,103 @@ import matplotlib.pyplot as plt
 import timeit
 import numpy as np
 import math
-import os 
+import os
 
-from recu import *
+from recu import justifier_recu
+from iterative import justifier_iter
 
 import random
 
 dico_par_defaut = [
-        "soleil", "batterie", "basket", "lol", "rivière", "ordinateur",
-        "aventure", "secret", "horizon", "océan", "montagne", "chanson",
-        "silence", "mystère", "univers", "énergie", "rêve", "vérité",
-        "fauteuil", "vélo", "code", "git", "café", "sudo",
+    "soleil",
+    "batterie",
+    "basket",
+    "lol",
+    "rivière",
+    "ordinateur",
+    "aventure",
+    "secret",
+    "horizon",
+    "océan",
+    "montagne",
+    "chanson",
+    "silence",
+    "mystère",
+    "univers",
+    "énergie",
+    "rêve",
+    "vérité",
+    "fauteuil",
+    "vélo",
+    "code",
+    "git",
+    "café",
+    "sudo",
 ]
 
 dico_1_caractere = [
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-    'u', 'v', 'w', 'x', 'y', 'z',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-    'U', 'V', 'W', 'X', 'Y', 'Z',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
 ]
 
 
@@ -58,8 +134,6 @@ def genererateur_texte_1_caract(n: int, dico: list = dico_1_caractere) -> tuple:
     mots_choisis = random.choices(dico, k=n)
     longueurs = [1] * n  # Tous les mots font 1 caractère
     return longueurs, mots_choisis
-
-
 
 
 class ComplexiteTempo:
@@ -218,14 +292,15 @@ function_dict = {
     #     lambda n: n * 80, # Pour L = 80
     #     "O(n * L)",
     # ),
-    "Solution itérative": (
-        justifier_iteratif,
-        lambda n: n * 80,
-        "O(n * L)")
+    "Solution itérative": (justifier_iteratif, lambda n: n * 80, "O(n * L)")
 }
-viz = ComplexiteTempo(functions_dict=function_dict, generateur = genererateur_texte_1_caract)
 
-# changer la valeur ci dessous pour visualiser plus de points
+# Par défaut, on se place dans le pire des cas, vous pouvez cependant modifier le generateur pour tester d'autres cas
+viz = ComplexiteTempo(
+    functions_dict=function_dict, generateur=genererateur_texte_1_caract
+)
+
+# changer la valeur ci dessous pour augmenter le nombre de mot générer en entrée
 viz.main(500)
 
 # %%

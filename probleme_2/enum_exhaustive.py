@@ -1,4 +1,4 @@
-import common
+from common import *
 import numpy as np
 import copy
 
@@ -49,7 +49,10 @@ fich = common.lire_fichier("recherche_p1.txt")[0]
 print(enum_exhaus_memo(fich,80))
 
 
-def enum_exhaus_mat(tableau,taille_ligne,ligne_actuel=[],matrice=[],somme_actu=0,l_ligne_actu=0):
+
+def enum_exhaus_mat(
+    tableau, taille_ligne, ligne_actuel=[], matrice=[], somme_actu=0, l_ligne_actu=0
+):
     """Effectue l'énumération exhaustive des possibilités pour trouver la solution optimale
     La solution optimale est stockée dans la variable global meilleur_tableau
 
@@ -65,34 +68,51 @@ def enum_exhaus_mat(tableau,taille_ligne,ligne_actuel=[],matrice=[],somme_actu=0
 
         global min_connu
         global meilleur_tableau
-        #ne conserve la matrice que si elle est meilleure que la meilleure matrice trouvée jusqu'à présent
-        somme_actu+=somme_carre(l_ligne_actu,taille_ligne,len(ligne_actuel)-1)
+        # Ne conserve la matrice que si elle est meilleure que la meilleure matrice trouvée jusqu'à présent
+        somme_actu += somme_carre(l_ligne_actu, taille_ligne, len(ligne_actuel) - 1)
         matrice.append(ligne_actuel)
         if somme_actu<min_connu:
             min_connu=somme_actu
             meilleur_tableau=copy.deepcopy(matrice)
         matrice.pop()
-        return 
+        return
 
-    #on passe à la ligne suivante
-    if ligne_actuel!=[]:
+    # On passe à la ligne suivante
+    if ligne_actuel != []:
         matrice.append(ligne_actuel)
-        enum_exhaus_mat(tableau,taille_ligne,somme_actu=somme_actu+somme_carre(l_ligne_actu,taille_ligne,len(ligne_actuel)-1),matrice=matrice,ligne_actuel=[])
+        enum_exhaus_mat(
+            tableau,
+            taille_ligne,
+            somme_actu=somme_actu
+            + somme_carre(l_ligne_actu, taille_ligne, len(ligne_actuel) - 1),
+            matrice=matrice,
+            ligne_actuel=[],
+        )
         matrice.pop()
-    #on reste sur la même ligne si on peut 
-    if l_ligne_actu+tableau[0]+len(ligne_actuel)-1<=taille_ligne:#condition qui vérifie que le mot rentre sur la ligne
+    # On reste sur la même ligne si on peut
+    if (
+        l_ligne_actu + tableau[0] + len(ligne_actuel) - 1 <= taille_ligne
+    ):  # Condition qui vérifie que le mot rentre sur la ligne
         t_0 = tableau[0]
         ligne_actuel.append(t_0)
-        enum_exhaus_mat(tableau[1:],taille_ligne,ligne_actuel,somme_actu=somme_actu,matrice=matrice,l_ligne_actu=l_ligne_actu+t_0)
+        enum_exhaus_mat(
+            tableau[1:],
+            taille_ligne,
+            ligne_actuel,
+            somme_actu=somme_actu,
+            matrice=matrice,
+            l_ligne_actu=l_ligne_actu + t_0,
+        )
         ligne_actuel.pop()
-    return 
+    return
 
-def appel_enum_exhaus_mat(tableau,taille_ligne):
+
+def appel_enum_exhaus_mat(tableau, taille_ligne):
     global min_connu
     global meilleur_tableau
-    min_connu = float('inf')
+    min_connu = float("inf")
     meilleur_tableau = []
-    enum_exhaus_mat(tableau,taille_ligne)
+    enum_exhaus_mat(tableau, taille_ligne)
     return meilleur_tableau
 
 fich = np.array([10,2,2,4,6,2,5,6])

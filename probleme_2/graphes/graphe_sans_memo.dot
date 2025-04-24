@@ -1,3 +1,8 @@
+/*
+    Ce code n’est pas destiné à être exécuté (il nécessiterait des dépendances que nous considérons superflues).
+    Il sert uniquement d’illustration pour montrer comment nous avons généré la figure "graphe_sans_memo.png".
+*/
+
 digraph RecursionTree {
     rankdir=TB;               // top → bottom
     node [shape=box, style = filled];

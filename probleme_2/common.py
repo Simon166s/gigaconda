@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 
 
 def lire_fichier(nom_fichier: str) -> tuple[np.array]:
@@ -14,7 +14,7 @@ def lire_fichier(nom_fichier: str) -> tuple[np.array]:
         tuple[np.array]: tuple contenant:
             -la matrice ligne des longueurs de chaque mot du texte
             -la matrice ligne des mot du texte
-    """    
+    """
     mots = []
     longueurs_mots = []
     with open(nom_fichier) as f:
@@ -29,48 +29,33 @@ def lire_fichier(nom_fichier: str) -> tuple[np.array]:
     return np.array(longueurs_mots), np.array(mots)
 
 
-def remplir_matrice_depuis_longueurs(mots: np.array, matrice_longueurs: np.array) -> np.array:
-    """Reconstitue la matrice de mots à partir de la matrice de tailles
-    et de la liste ordonnée des mots.
+def reconstruire_texte(liste_mots: np.ndarray, coupures: dict[int, int]) -> str:
+    """
+    Reconstruit le texte justifié à partir de la liste de mots et des positions de coupure.
 
     Args:
-        mots (np.array): la matrice ligne des mots du texte
-        matrice_longueurs (np.array): la matrice des longueurs que l'on a optimisée
+        liste_mots (np.ndarray):
+            Tableau contenant les mots du texte d'origine
+        coupures (dict[int, int]):
+            Dictionnaire qui associe chaque index de fin de ligne (exclu)
+            à l'index de début de cette même ligne.
 
     Returns:
-        np.array: la matrice contenant les mots arrangés à partir de la matrice des longueurs
-    """    
-    l, L = matrice_longueurs.shape
-    matrice_mots = np.full((l, L), "", dtype=object)
+        str:
+            Le texte justifié sous forme d'une chaîne de caractères, avec
+            chaque ligne séparée par un saut de ligne.
+    """
+    lignes: list[str] = []
+    fin = len(liste_mots)
+    # Traiter tous les mots
+    while fin > 0:
+        # On récupère où commence la dernière ligne
+        debut = coupures.get(fin, 0)
+        # On assemble la ligne à partir de debut jusqu'à fin (exclu)
+        lignes.insert(0, " ".join(liste_mots[debut:fin]))
+        # On recule la borne supérieure pour traiter la ligne précédente
+        fin = debut
 
-    index_mot = 0
-    l, L = matrice_longueurs.shape
-    matrice_mots = np.empty((l, L), dtype=object)
-    index_mot = 0
-    for i in range(l):
-        for j in range(L):
-            if matrice_longueurs[i, j] > 0:
-                matrice_mots[i, j] = mots[index_mot]
-                index_mot += 1
-            else:
-                matrice_mots[i, j] = ""
-    return matrice_mots
-
-
-def reconstruire_texte(matrice: np.array) -> str:
-    """Reconstruir un texte à partir d'une matrice de mots
-
-    Args:
-        matrice (np.array): _description_
-
-    Returns:
-        str: _description_
-    """    
-    lignes = []
-    for ligne in matrice:
-        mots_valides = [mot for mot in ligne if mot]
-        lignes.append(" ".join(mots_valides))
-    return "\n".join(lignes)
-
-
-
+    # On joint toutes les lignes par un retour à la ligne
+    texte_justifie = "\n".join(lignes)
+    return texte_justifie
