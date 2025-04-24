@@ -7,7 +7,8 @@ import math
 import os
 
 from recu import justifier_recu
-from iterative import justifier_iter
+from iterative import justifier_iteratif
+from enum_exhaustive import enum_exhaus_mat
 
 import random
 
