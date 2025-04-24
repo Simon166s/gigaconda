@@ -6,29 +6,62 @@ import numpy as np
 import math
 import os 
 
+from recu import *
 
 import random
 
-dictionnnaire_par_defaut = [
+dico_par_defaut = [
         "soleil", "batterie", "basket", "lol", "rivière", "ordinateur",
         "aventure", "secret", "horizon", "océan", "montagne", "chanson",
         "silence", "mystère", "univers", "énergie", "rêve", "vérité",
         "fauteuil", "vélo", "code", "git", "café", "sudo",
-    ]
+]
 
-def generer_texte(n, dictionnaire= dictionnnaire_par_defaut):
-    """
-    Retourne une chaîne de n mots choisis aléatoirement.
-    
-    Params :
-    - n (int) : nombre de mots à générer
-    - dictionnaire (list[str] or None) : liste de mots à utiliser.
-      Si None, on charge le dictionnaire système ou de secours.
-    """
+dico_1_caractere = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x', 'y', 'z',
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    '!', '?', '.', ',', ':', ';', '(', ')', '[', ']',
+    '{', '}', '+', '-', '*', '/', '=', '<', '>', '&',
+    '|', '^', '~', '#', '%', '@', '$', '€', '"', "'",
+    '_', '`'
+]
 
-    mots_choisis = random.choices(dictionnaire, k=n)
-    # Rejoindre par espaces
-    return " ".join(mots_choisis)
+
+def genererateur_texte(n: int, dico: list = dico_par_defaut) -> tuple:
+    """Génère une liste de n mots choisis dans un dictionnaire et retourne un tuple
+    contenant les longueurs des mots et la liste des mots.
+
+    Args:
+        n (int): le nombre de mots à générer
+        dico (list): le dictionnaire de mots
+
+    Returns:
+        tuple: (liste des longueurs, liste des mots)
+    """
+    mots_choisis = random.choices(dico, k=n)
+    longueurs = [len(mot) for mot in mots_choisis]
+    return longueurs, mots_choisis
+
+
+def genererateur_texte_1_caract(n: int, dico: list = dico_1_caractere) -> tuple:
+    """Génère une liste de n mots à un seul caractère et retourne un tuple
+    contenant les longueurs des mots (toujours 1) et la liste des mots.
+
+    Args:
+        n (int): le nombre de mots à générer
+        dico (list): le dictionnaire de mots à un caractère
+
+    Returns:
+        tuple: (liste des longueurs, liste des mots)
+    """
+    mots_choisis = random.choices(dico, k=n)
+    longueurs = [1] * n  # Tous les mots font 1 caractère
+    return longueurs, mots_choisis
 
 
 
@@ -37,6 +70,7 @@ class ComplexiteTempo:
     def __init__(
         self,
         functions_dict: dict = None,
+        generateur: callable = genererateur_texte_1_caract,
     ):
         """Initialise l'objet avec les fonctions à évaluer et le generateur de donné choisi
 
@@ -45,12 +79,12 @@ class ComplexiteTempo:
             functions_dict (dict, optional): les fonctions à tester avec leur label  . Defaults to None
             generateur (_type_, optional): la fonction générative de données. Defaults to generateur_non_chevauchant.
         """
-        self.generateur = generer_texte
+        self.generateur = generateur
         self.functions_dict = functions_dict
 
     def wrapper(self, func: callable, n: int) -> callable:
         """ Génère une fonction sans argument qui exécute `func` sur un jeu de données
-        généré par generateur_base_de_donnees pour une taille donnée `n`.
+        généré par `self.generateur` pour une taille donnée `n`.
 
         Args:
             func (_type_): la fonction a wrap
@@ -61,8 +95,8 @@ class ComplexiteTempo:
         """ """
 
         """
-        data = self.generateur(n)
-        return lambda: func(data)
+        longueurs_mots, liste_mots = self.generateur(n)
+        return lambda: func(longueurs_mots, liste_mots)
 
     def benchmark_function(
         self, func: callable, n_values: int, number: int = 100
@@ -144,7 +178,7 @@ class ComplexiteTempo:
                 alpha=0.5,
             )
 
-        plt.xlabel("Nombre de points", fontsize=12)
+        plt.xlabel("Nombre de mots en entrée", fontsize=12)
         plt.ylabel("Temps (s)", fontsize=12)
         plt.title(f"Tendances de complexité\nDonnées: {generateur.__name__}", pad=20)
         plt.legend()
@@ -183,11 +217,19 @@ class ComplexiteTempo:
 
 
 function_dict = {
-    
+    # "Solution récursive mémoisé": (
+    #     justifier_recu,
+    #     lambda n: n * 80, # Pour L = 80
+    #     "O(n * L)",
+    # ),
+    "Solution itérative": (
+        justifier_iteratif,
+        lambda n: n * 80,
+        "O(n * L)")
 }
-viz = ComplexiteTempo(functions_dict=function_dict)
+viz = ComplexiteTempo(functions_dict=function_dict, generateur = genererateur_texte_1_caract)
 
 # changer la valeur ci dessous pour visualiser plus de points
-viz.main(7)
+viz.main(300)
 
 # %%

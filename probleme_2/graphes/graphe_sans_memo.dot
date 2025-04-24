@@ -1,0 +1,34 @@
+digraph RecursionTree {
+    rankdir=TB;               // top → bottom
+    node [shape=box, style = filled];
+
+    // Nœuds (un par appel récursif)
+    n0  [label="C(4)"];
+    n1  [label="C(3)"];
+    n2  [label="C(2)", fillcolor=lightblue];
+    n3  [label="C(2)", fillcolor=lightblue];     // deuxième appel à C(2)
+    n4  [label="C(1)", fillcolor=red];
+    n5  [label="C(1)", fillcolor=red];     // deuxième appel à C(1)
+    n6  [label="C(1)", fillcolor=red];     // troisième appel à C(1)
+    n7  [label="C(0)", fillcolor=yellow];
+    n8  [label="C(0)", fillcolor=yellow];     // deuxième appel à C(0)
+    n9  [label="C(0)", fillcolor=yellow];     // troisième appel à C(0)
+   n10  [label="C(0)", fillcolor=yellow];     // quatrième appel à C(0)
+
+    // Arêtes
+    n0  -> n1;  
+    n0  -> n2;  
+
+    n1  -> n3;  
+    n1  -> n4;  
+
+    n3  -> n5;  
+    n3  -> n7;  
+
+    n4  -> n8;  
+
+    n2  -> n6;  
+    n2  -> n9;  
+
+    n5  -> n10; 
+}
