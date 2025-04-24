@@ -5,10 +5,6 @@ import copy
 def somme_carre(longueur_ligne_actuel,taille_ligne,nb_espace=0):
     return (taille_ligne-longueur_ligne_actuel-nb_espace)**2
 
-mimimum = float('inf')
-tableau_r = []
-
-dictio_sous_opt = {}
 def enum_exhaus_memo(tableau,L,ligne_actuel=[]):
     global dictio_sous_opt
     """Effectue l'énumération exhaustive des possibilités avec mémoïsation
@@ -44,14 +40,14 @@ def enum_exhaus_memo(tableau,L,ligne_actuel=[]):
             retour_ligne+=somme_carre(sum(ligne_actuel),L,len(ligne_actuel)-1)#on fais donc le bilan de la ligne avec somme_carre
     return min(retour_ligne,rester_sur_la_ligne)
 
+dictio_sous_opt = {}
 test = np.array([10,2,2,4,6,2,5,6])
 print(enum_exhaus_memo(test,20))
-print(dictio_sous_opt)
-print(tableau_r)
 
+dictio_sous_opt = {}
+fich = common.lire_fichier("recherche_p1.txt")[0]
+print(enum_exhaus_memo(fich,80))
 
-min_connu = float('inf')
-meilleur_tableau = []
 
 def enum_exhaus_mat(tableau,taille_ligne,ligne_actuel=[],matrice=[],somme_actu=0,l_ligne_actu=0):
     """Effectue l'énumération exhaustive des possibilités pour trouver la solution optimale
@@ -66,7 +62,6 @@ def enum_exhaus_mat(tableau,taille_ligne,ligne_actuel=[],matrice=[],somme_actu=0
     """
     #cas de base
     if len(tableau)==0:
-        print(somme_actu)
 
         global min_connu
         global meilleur_tableau
@@ -74,7 +69,6 @@ def enum_exhaus_mat(tableau,taille_ligne,ligne_actuel=[],matrice=[],somme_actu=0
         somme_actu+=somme_carre(l_ligne_actu,taille_ligne,len(ligne_actuel)-1)
         matrice.append(ligne_actuel)
         if somme_actu<min_connu:
-            print("pass")
             min_connu=somme_actu
             meilleur_tableau=copy.deepcopy(matrice)
         matrice.pop()
@@ -101,14 +95,5 @@ def appel_enum_exhaus_mat(tableau,taille_ligne):
     enum_exhaus_mat(tableau,taille_ligne)
     return meilleur_tableau
 
-# #fich = common.lire_fichier("recherche_p1.txt")[0]
-# #print(fich)
 fich = np.array([10,2,2,4,6,2,5,6])
-# #print(len(fich))
 print(appel_enum_exhaus_mat(fich,20))
-
-
-"""fich = common.lire_fichier("recherche_complet.txt")[0]
-print(fich[0])
-fich = np.array([10,5,7,1,1])
-print(enum_exhaus(fich,12))"""
