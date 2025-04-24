@@ -25,10 +25,6 @@ dico_1_caractere = [
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
     'U', 'V', 'W', 'X', 'Y', 'Z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    '!', '?', '.', ',', ':', ';', '(', ')', '[', ']',
-    '{', '}', '+', '-', '*', '/', '=', '<', '>', '&',
-    '|', '^', '~', '#', '%', '@', '$', '€', '"', "'",
-    '_', '`'
 ]
 
 
@@ -230,6 +226,6 @@ function_dict = {
 viz = ComplexiteTempo(functions_dict=function_dict, generateur = genererateur_texte_1_caract)
 
 # changer la valeur ci dessous pour visualiser plus de points
-viz.main(300)
+viz.main(500)
 
 # %%
